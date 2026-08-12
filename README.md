@@ -188,3 +188,4 @@ Analytical statistics summarizing total teams, participants, track breakdowns, a
 - **Helmet Security Headers**: Secure headers applied automatically in Express.
 - **Express Rate Limiter**: Configured rate-limiting middleware (max 100 requests per 15 minutes) applied to all `/api/` endpoints to throttle robotic attacks.
 - **CORS Protection**: Access to backend routes restricted to defined domain origins (`http://localhost:3000`).
+# mad-reg
