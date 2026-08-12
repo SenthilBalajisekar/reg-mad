@@ -1,7 +1,7 @@
 export const EVENT_CONFIG = {
   eventName: "MOBILE APP CLUB HACKATHON 2026",
   tagline: "BUILD THE UNEXPECTED",
-  collegeName: "Tech Innovation University",
+  collegeName: "",
   eventDate: "March 13 - 14, 2026",
   registrationDeadline: "March 05, 2026",
   venue: "Main Auditorium & Labs",

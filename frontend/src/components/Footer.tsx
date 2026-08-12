@@ -42,7 +42,7 @@ export default function Footer() {
             </div>
             <div className="flex items-center gap-2">
               <MapPin size={14} className="text-violet-400" />
-              <span>{EVENT_CONFIG.venue}, {EVENT_CONFIG.collegeName}</span>
+              <span>{EVENT_CONFIG.venue}</span>
             </div>
           </div>
         </div>

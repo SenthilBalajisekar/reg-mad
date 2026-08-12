@@ -230,11 +230,6 @@ function SuccessDetails() {
               <span className="text-slate-800 font-bold">{details.members.length} Members</span>
             </div>
 
-            <div className="flex flex-col gap-1 border-b border-slate-200 pb-2 col-span-2">
-              <span className="text-[9px] text-slate-500 uppercase">COLLEGE / INSTITUTION</span>
-              <span className="text-slate-800 font-bold truncate max-w-md">{details.members[0]?.collegeName}</span>
-            </div>
-
             <div className="flex flex-col gap-1">
               <span className="text-[9px] text-slate-500 uppercase">TRACK CATEGORY</span>
               <span className="text-slate-800 font-bold">{details.team.track}</span>

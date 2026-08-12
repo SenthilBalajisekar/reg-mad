@@ -25,7 +25,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   const leaderEmail = leader.email;
   const leaderPhone = leader.phone;
   const leaderStudentId = leader.studentId;
-  const leaderCollege = leader.collegeName || "Sathyabama Institute of Science and Technology";
+  const leaderCollege = "";
   const leaderDept = leader.department || "Computer Science & Engineering";
   const leaderYear = leader.year || 1;
 
@@ -54,7 +54,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
         res.status(400).json({ error: `Please fill all details for Team Member ${i + 1}.` });
         return;
       }
-      m.collegeName = m.collegeName || leaderCollege;
+      m.collegeName = "";
       m.department = m.department || leaderDept;
       m.year = m.year || leaderYear;
 
@@ -122,7 +122,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     const [leaderResult] = await connection.query<ResultSetHeader>(
       `INSERT INTO participants (full_name, email, phone, college_name, department, year, student_id) 
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [leaderName, leaderEmail, leaderPhone, leaderCollege, leaderDept, leaderYear, leaderStudentId]
+      [leaderName, leaderEmail, leaderPhone, "", leaderDept, leaderYear, leaderStudentId]
     );
     const leaderParticipantId = leaderResult.insertId;
 
@@ -146,7 +146,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
         const [mResult] = await connection.query<ResultSetHeader>(
           `INSERT INTO participants (full_name, email, phone, college_name, department, year, student_id) 
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [m.fullName, m.email, m.phone, m.collegeName, m.department, m.year, m.studentId]
+          [m.fullName, m.email, m.phone, "", m.department || leaderDept, m.year || leaderYear, m.studentId]
         );
         const mParticipantId = mResult.insertId;
 
@@ -225,7 +225,7 @@ router.get("/:registrationId", async (req: Request, res: Response): Promise<void
 
     // Get team members (with participant details)
     const [memberRows] = await pool.query<RowDataPacket[]>(
-      `SELECT p.id, p.full_name, p.email, p.phone, p.college_name, p.department, p.year, p.student_id, tm.role 
+      `SELECT p.id, p.full_name, p.email, p.phone, p.department, p.year, p.student_id, tm.role 
        FROM team_members tm
        JOIN participants p ON tm.participant_id = p.id
        WHERE tm.team_id = ?
