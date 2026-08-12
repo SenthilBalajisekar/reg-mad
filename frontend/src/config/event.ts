@@ -7,30 +7,30 @@ export const EVENT_CONFIG = {
   venue: "Main Auditorium & Labs",
   prizePool: "₹50,000",
   minTeamSize: 2,
-  maxTeamSize: 4,
+  maxTeamSize: 3,
   prizes: [
     { rank: "2nd", title: "Second Place", amount: "₹15,000", desc: "Runner Up Cash Prize + Certificates", color: "from-slate-400 to-slate-500", glow: "rgba(148, 163, 184, 0.4)" },
     { rank: "1st", title: "First Place", amount: "₹25,000", desc: "Grand Winner Trophy + Cash + Goodies", color: "from-yellow-400 via-amber-500 to-yellow-600", glow: "rgba(234, 179, 8, 0.5)", premium: true },
     { rank: "3rd", title: "Third Place", amount: "₹10,000", desc: "Second Runner Up Cash Prize + Certificates", color: "from-amber-700 to-amber-800", glow: "rgba(180, 83, 9, 0.4)" }
   ],
   tracks: [
-    { id: "mobile", name: "Mobile Applications", icon: "Smartphone", desc: "Build cutting-edge iOS/Android mobile applications that solve daily user struggles with high performance." },
-    { id: "ai_ml", name: "AI & Machine Learning", icon: "Cpu", desc: "Incorporate intelligent LLMs, predictive model networks, or automated agents into workflow applications." },
-    { id: "web_tech", name: "Web Technology", icon: "Globe", desc: "Build high-performance, immersive next-generation web applications, devtools, or platform portals." },
-    { id: "cybersec", name: "Cybersecurity", icon: "ShieldAlert", desc: "Develop novel cryptography pipelines, server protection layers, or cyber threat prevention dashboards." },
-    { id: "social", name: "Social Impact", icon: "HeartHandshake", desc: "Apply software engineering to solve community issues, carbon footprint management, or micro-education." }
+    { id: "fullstack_web", name: "Full-Stack Web Development", icon: "Globe", desc: "Build responsive, high-performance web applications and modern portals to solve real-time problems." },
+    { id: "ai_web", name: "AI-Powered Web Apps", icon: "Cpu", desc: "Integrate intelligent AI models, chatbots, and predictive tools into websites to address real-world challenges." },
+    { id: "portal_web", name: "Enterprise & Portal Web Systems", icon: "Smartphone", desc: "Design scalable web portals, management dashboards, and digital platforms to streamline real-time services." },
+    { id: "security_web", name: "Web Security & Data Portals", icon: "ShieldAlert", desc: "Develop secure web applications, encrypted data portals, and web security tools for safe online interactions." },
+    { id: "social_web", name: "Social Impact Web Solutions", icon: "HeartHandshake", desc: "Create accessible web platforms and community web portals designed to solve real-time societal problems." }
   ],
   timeline: [
-    { phase: "01", title: "REGISTRATION", date: "Feb 08 - Mar 05", desc: "Form your team of 2-4 members and register online through this platform." },
+    { phase: "01", title: "REGISTRATION", date: "Feb 08 - Mar 05", desc: "Form your team of 2-3 members and register online through this platform." },
     { phase: "02", title: "TEAM FORMATION", date: "Mar 06 - Mar 08", desc: "Finalize roles, brainstorm ideas, and set up your development workspace templates." },
     { phase: "03", title: "IDEA SUBMISSION", date: "Mar 09", desc: "Submit a brief 1-page proposal and wireframe design of your planned hack project." },
-    { phase: "04", title: "HACKATHON MAIN EVENT", date: "Mar 13 - 14", desc: "24-hour sprint. Build, break, refactor, and finalize your prototype at the college venue." },
+    { phase: "04", title: "HACKATHON MAIN EVENT", date: "Mar 13 - 14", desc: "5-hour sprint. Build, break, refactor, and finalize your prototype at the college venue." },
     { phase: "05", title: "FINAL PRESENTATION", date: "Mar 14 (3:00 PM)", desc: "Pitch your product live in front of tech industry mentors and college jury panels." },
     { phase: "06", title: "WINNERS ANNOUNCED", date: "Mar 14 (6:00 PM)", desc: "Jury assessment completes. Trophies, cash prizes, and merchandise are awarded." }
   ],
   faqs: [
     { q: "Who can participate?", a: "Any student currently enrolled in an undergraduate or postgraduate program at our university is welcome to join!" },
-    { q: "What is the team size?", a: "Teams must have between 2 to 4 members. Solo participations are not permitted." },
+    { q: "What is the team size?", a: "Teams must have between 2 to 3 members. Solo participations are not permitted." },
     { q: "Is registration free?", a: "Yes, registration is 100% free for all students. Food, snacks, and wifi will be provided by the club." },
     { q: "Do I need previous hackathon experience?", a: "Not at all! Many participants build their very first developer project here. We will have mentors to guide you." },
     { q: "What should we build?", a: "Choose one of our five tracks (Mobile, AI, Web, Security, Social) and build a functional tech prototype related to your track." },
@@ -48,11 +48,10 @@ export const EVENT_CONFIG = {
     { title: "Code of Conduct", detail: "Treat all other participants, mentors, organizers, and volunteers with respect. Harassment of any form will result in immediate disqualification." }
   ],
   stats: [
-    { value: 24, label: "HACKATHON HOURS", suffix: "H" },
-    { value: 100, label: "PARTICIPANTS", suffix: "+" },
-    { value: 25, label: "TEAMS REGISTERED", suffix: "+" },
-    { value: 50000, label: "PRIZE POOL", prefix: "₹" }
-  ],
+    { value: 5, label: "HACKATHON HOURS", suffix: "H" },
+    { value: 20, label: "TOTAL TEAMS", suffix: "" },
+    { value: 0, label: "TEAMS REGISTERED", suffix: "" }
+  ] as Array<{ value: number; label: string; suffix?: string; prefix?: string }>,
   contact: {
     email: "mac@college.edu",
     phone: "+91 98765 43210",

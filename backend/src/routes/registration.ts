@@ -10,15 +10,27 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   const { teamName, track, problemStatement, technologyStack, leader, members } = req.body;
 
   // 1. Inputs validation
-  if (!teamName || !track || !problemStatement || !technologyStack || !leader) {
-    res.status(400).json({ error: "Please complete all required fields." });
+  if (!teamName || !leader) {
+    res.status(400).json({ error: "Please complete team name and leader details." });
     return;
   }
 
+  // Set default values for 3-step registration workflow
+  const finalTrack = track || "Website Development";
+  const finalProblemStatement = problemStatement || "To build the website based on the SDG goals. The Problem Statement will be given on the spot.";
+  const finalTechStack = technologyStack || "Website Development";
+
   // Validate leader fields
-  const { fullName: leaderName, email: leaderEmail, phone: leaderPhone, collegeName: leaderCollege, department: leaderDept, year: leaderYear, studentId: leaderStudentId } = leader;
-  if (!leaderName || !leaderEmail || !leaderPhone || !leaderCollege || !leaderDept || !leaderYear || !leaderStudentId) {
-    res.status(400).json({ error: "Please complete all leader details." });
+  const leaderName = leader.fullName;
+  const leaderEmail = leader.email;
+  const leaderPhone = leader.phone;
+  const leaderStudentId = leader.studentId;
+  const leaderCollege = leader.collegeName || "Sathyabama Institute of Science and Technology";
+  const leaderDept = leader.department || "Computer Science & Engineering";
+  const leaderYear = leader.year || 1;
+
+  if (!leaderName || !leaderEmail || !leaderPhone || !leaderStudentId) {
+    res.status(400).json({ error: "Please complete all leader details (Name, Email, Phone, Student ID)." });
     return;
   }
 
@@ -31,12 +43,6 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  // Validate track choice
-  if (!EVENT_CONFIG.tracks.includes(track)) {
-    res.status(400).json({ error: "Invalid track selected." });
-    return;
-  }
-
   // Compile all participant emails and student IDs for check
   const allEmails = [leaderEmail];
   const allStudentIds = [leaderStudentId];
@@ -44,10 +50,14 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   if (members && members.length > 0) {
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      if (!m.fullName || !m.email || !m.phone || !m.collegeName || !m.department || !m.year || !m.studentId) {
+      if (!m.fullName || !m.email || !m.phone || !m.studentId) {
         res.status(400).json({ error: `Please fill all details for Team Member ${i + 1}.` });
         return;
       }
+      m.collegeName = m.collegeName || leaderCollege;
+      m.department = m.department || leaderDept;
+      m.year = m.year || leaderYear;
+
       allEmails.push(m.email);
       allStudentIds.push(m.studentId);
     }
@@ -120,7 +130,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     const [teamResult] = await connection.query<ResultSetHeader>(
       `INSERT INTO teams (team_name, team_leader_id, track, problem_statement, technology_stack) 
        VALUES (?, ?, ?, ?, ?)`,
-      [teamName, leaderParticipantId, track, problemStatement, technologyStack]
+      [teamName, leaderParticipantId, finalTrack, finalProblemStatement, finalTechStack]
     );
     const teamId = teamResult.insertId;
 

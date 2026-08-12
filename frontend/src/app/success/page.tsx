@@ -143,7 +143,7 @@ function SuccessDetails() {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 150, damping: 15 }}
-          className="text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.4)]"
+          className="text-emerald-600 drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]"
         >
           <CheckCircle2 size={64} />
         </motion.div>
@@ -153,10 +153,10 @@ function SuccessDetails() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <h1 className="font-orbitron font-black text-3xl md:text-5xl tracking-wide uppercase text-white">
+          <h1 className="font-orbitron font-black text-3xl md:text-5xl tracking-wide uppercase text-slate-900">
             YOU'RE IN!
           </h1>
-          <p className="text-sm font-mono tracking-widest text-slate-400 uppercase mt-1">
+          <p className="text-sm font-mono tracking-widest text-slate-600 uppercase mt-1 font-bold">
             Welcome to the Hackathon
           </p>
         </motion.div>
@@ -172,63 +172,63 @@ function SuccessDetails() {
         <div 
           ref={cardRef} 
           id="receipt-card"
-          className="glass-panel p-6 md:p-8 rounded-2xl border border-white/10 bg-[#060416] flex flex-col gap-6 relative"
+          className="glass-panel p-6 md:p-8 rounded-2xl border border-slate-200 bg-white/95 shadow-xl flex flex-col gap-6 relative"
         >
-          <div className="flex justify-between items-start border-b border-white/5 pb-4">
+          <div className="flex justify-between items-start border-b border-slate-200 pb-4">
             <div className="flex flex-col">
-              <span className="font-orbitron font-extrabold text-sm tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple">
+              <span className="font-orbitron font-extrabold text-sm tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-violet-700">
                 MOBILE APP CLUB
               </span>
-              <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest mt-0.5">
+              <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest mt-0.5 font-bold">
                 Tech Hackathon 2026
               </span>
             </div>
             
-            <div className="px-3 py-1 rounded bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-mono text-emerald-400 font-bold tracking-widest uppercase">
+            <div className="px-3 py-1 rounded bg-emerald-50 border border-emerald-300 text-[9px] font-mono text-emerald-700 font-bold tracking-widest uppercase">
               {details.status}
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center py-4 bg-[#0a0820]/60 rounded-xl border border-white/5 text-center">
+          <div className="flex flex-col items-center justify-center py-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
             <span className="text-[9px] font-mono text-slate-500 tracking-wider uppercase mb-1">
               REGISTRATION ID
             </span>
-            <span className="font-orbitron font-black text-2xl md:text-4xl text-neon-blue text-glow-blue tracking-wider">
+            <span className="font-orbitron font-black text-2xl md:text-4xl text-blue-600 tracking-wider">
               {details.registrationId}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-xs font-mono">
-            <div className="flex flex-col gap-1 col-span-2 border-b border-white/5 pb-2">
+            <div className="flex flex-col gap-1 col-span-2 border-b border-slate-200 pb-2">
               <span className="text-[9px] text-slate-500 uppercase">TEAM NAME</span>
-              <span className="text-slate-200 text-sm font-bold">{details.team.teamName}</span>
+              <span className="text-slate-900 text-sm font-bold">{details.team.teamName}</span>
             </div>
 
-            <div className="flex flex-col gap-1 border-b border-white/5 pb-2">
+            <div className="flex flex-col gap-1 border-b border-slate-200 pb-2">
               <span className="text-[9px] text-slate-500 uppercase">TEAM LEADER</span>
-              <span className="text-slate-300">
+              <span className="text-slate-800 font-bold">
                 {details.members.find(m => m.role === "leader")?.fullName || "N/A"}
               </span>
             </div>
 
-            <div className="flex flex-col gap-1 border-b border-white/5 pb-2">
+            <div className="flex flex-col gap-1 border-b border-slate-200 pb-2">
               <span className="text-[9px] text-slate-500 uppercase">MEMBERS COUNT</span>
-              <span className="text-slate-300">{details.members.length} Members</span>
+              <span className="text-slate-800 font-bold">{details.members.length} Members</span>
             </div>
 
-            <div className="flex flex-col gap-1 border-b border-white/5 pb-2 col-span-2">
+            <div className="flex flex-col gap-1 border-b border-slate-200 pb-2 col-span-2">
               <span className="text-[9px] text-slate-500 uppercase">COLLEGE / INSTITUTION</span>
-              <span className="text-slate-300 truncate max-w-md">{details.members[0]?.collegeName}</span>
+              <span className="text-slate-800 font-bold truncate max-w-md">{details.members[0]?.collegeName}</span>
             </div>
 
             <div className="flex flex-col gap-1">
               <span className="text-[9px] text-slate-500 uppercase">TRACK CATEGORY</span>
-              <span className="text-slate-300">{details.team.track}</span>
+              <span className="text-slate-800 font-bold">{details.team.track}</span>
             </div>
 
             <div className="flex flex-col gap-1">
               <span className="text-[9px] text-slate-500 uppercase">REGISTRATION DATE</span>
-              <span className="text-slate-300">
+              <span className="text-slate-800 font-bold">
                 {new Date(details.registeredAt).toLocaleDateString("en-IN", {
                   day: "2-digit",
                   month: "short",
@@ -238,24 +238,24 @@ function SuccessDetails() {
             </div>
           </div>
 
-          <div className="mt-2 border-t border-white/5 pt-4 flex flex-col gap-2.5">
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono uppercase">
-              <Calendar size={12} className="text-neon-purple" />
+          <div className="mt-2 border-t border-slate-200 pt-4 flex flex-col gap-2.5">
+            <div className="flex items-center gap-2 text-[10px] text-slate-700 font-mono uppercase font-bold">
+              <Calendar size={12} className="text-violet-600" />
               <span>DATES: {EVENT_CONFIG.eventDate}</span>
             </div>
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono uppercase">
-              <MapPin size={12} className="text-neon-purple" />
+            <div className="flex items-center gap-2 text-[10px] text-slate-700 font-mono uppercase font-bold">
+              <MapPin size={12} className="text-violet-600" />
               <span>VENUE: {EVENT_CONFIG.venue}</span>
             </div>
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono uppercase">
-              <Tag size={12} className="text-neon-purple" />
+            <div className="flex items-center gap-2 text-[10px] text-slate-700 font-mono uppercase font-bold">
+              <Tag size={12} className="text-violet-600" />
               <span>TEAM SIZE: {EVENT_CONFIG.minTeamSize}-{EVENT_CONFIG.maxTeamSize} MEMBERS</span>
             </div>
           </div>
 
-          <div className="flex flex-col items-center mt-2 opacity-30 select-none">
-            <div className="h-[25px] w-[180px] bg-gradient-to-r from-transparent via-slate-400 to-transparent flex items-center justify-between" style={{ backgroundImage: "repeating-linear-gradient(90deg, #ccc, #ccc 2px, transparent 2px, transparent 6px)" }} />
-            <span className="text-[8px] font-mono text-slate-400 mt-1">SECURE TRANSACTION KEY // {details.registrationId}</span>
+          <div className="flex flex-col items-center mt-2 opacity-40 select-none">
+            <div className="h-[25px] w-[180px] bg-gradient-to-r from-transparent via-slate-500 to-transparent flex items-center justify-between" style={{ backgroundImage: "repeating-linear-gradient(90deg, #334155, #334155 2px, transparent 2px, transparent 6px)" }} />
+            <span className="text-[8px] font-mono text-slate-600 mt-1 font-bold">SECURE TRANSACTION KEY // {details.registrationId}</span>
           </div>
         </div>
       </motion.div>
@@ -270,7 +270,7 @@ function SuccessDetails() {
         <button
           onClick={handleDownloadPDF}
           disabled={downloading}
-          className="w-full sm:w-1/2 py-3 rounded-lg bg-gradient-to-r from-neon-blue to-neon-purple text-xs font-mono font-bold uppercase tracking-widest text-white hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50"
+          className="w-full sm:w-1/2 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono font-bold uppercase tracking-widest text-white shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all duration-300 disabled:opacity-50"
         >
           {downloading ? (
             <>
@@ -287,7 +287,7 @@ function SuccessDetails() {
 
         <button
           onClick={() => router.push("/")}
-          className="w-full sm:w-1/2 py-3 rounded-lg glass-panel text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-white border border-white/5 hover:border-white/10 flex items-center justify-center gap-2 transition-all duration-300"
+          className="w-full sm:w-1/2 py-3 rounded-lg glass-panel text-xs font-mono font-bold uppercase tracking-widest text-slate-700 hover:text-slate-900 border border-slate-300 bg-white hover:border-slate-400 flex items-center justify-center gap-2 transition-all duration-300"
         >
           <Home size={14} />
           BACK TO HOME
@@ -299,15 +299,14 @@ function SuccessDetails() {
 
 export default function Success() {
   return (
-    <div className="relative min-h-screen bg-[#030014] text-slate-100 flex flex-col items-center justify-center px-4 py-16">
+    <div className="relative min-h-screen bg-[#060412] text-white flex flex-col items-center justify-center px-4 py-16">
       {/* Background patterns */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-15 pointer-events-none z-0" />
-      <div className="absolute inset-0 scanline-overlay opacity-10 pointer-events-none z-10" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-30 pointer-events-none z-0" />
       
       <Suspense fallback={
         <div className="flex flex-col items-center justify-center gap-4">
-          <Loader2 className="animate-spin text-neon-blue" size={36} />
-          <span className="font-mono text-xs tracking-widest text-slate-400 font-bold">BOOTING SUCCESS COMPONENT...</span>
+          <Loader2 className="animate-spin text-blue-600" size={36} />
+          <span className="font-mono text-xs tracking-widest text-slate-600 font-bold">BOOTING SUCCESS COMPONENT...</span>
         </div>
       }>
         <SuccessDetails />
