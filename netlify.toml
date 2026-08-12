@@ -1,0 +1,14 @@
+# Netlify Configuration File for Next.js App (Subdirectory: frontend)
+
+[build]
+  # Specify the base directory where frontend package.json lives
+  base = "frontend"
+  # Build command
+  command = "npm run build"
+  # Next.js publish directory
+  publish = ".next"
+
+# Essential Next.js Plugin for Netlify App Router support
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+

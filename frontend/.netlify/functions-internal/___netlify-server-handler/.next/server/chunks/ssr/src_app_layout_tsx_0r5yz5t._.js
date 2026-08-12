@@ -1,0 +1,3 @@
+module.exports=[27572,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"en",className:"--font-inter --font-orbitron scroll-smooth",children:(0,b.jsx)("body",{className:"bg-white text-slate-900 min-h-screen antialiased",children:a})})},"metadata",0,{title:"MOBILE APP CLUB | HACKATHON 2026",description:"Join the ultimate technology hackathon challenge - Build the Unexpected. Innovate, collaborate, and compete for a ₹50,000 prize pool.",keywords:["hackathon","mobile app club","coding","programming","college hackathon","AI & ML","web design"]}])},50645,function(a){a.n(a.i(27572))}];
+
+//# sourceMappingURL=src_app_layout_tsx_0r5yz5t._.js.map
