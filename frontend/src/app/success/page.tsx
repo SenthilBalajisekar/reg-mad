@@ -77,7 +77,7 @@ function SuccessDetails() {
     fetchDetails();
   }, [regId]);
 
-  // Client-side PDF generation using html2canvas & jsPDF
+  // Client-side PDF generation using html2canvas & jsPDF with print fallback
   const handleDownloadPDF = async () => {
     if (!cardRef.current || !details) return;
     setDownloading(true);
@@ -86,25 +86,39 @@ function SuccessDetails() {
       const html2canvas = (await import("html2canvas")).default;
       const { jsPDF } = await import("jspdf");
 
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2, // Retain high quality
-        backgroundColor: "#030014",
+      const element = cardRef.current;
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        backgroundColor: "#ffffff",
         useCORS: true,
-        logging: false
+        allowTaint: true,
+        logging: false,
+        onclone: (clonedDoc) => {
+          const clonedCard = clonedDoc.getElementById("receipt-card");
+          if (clonedCard) {
+            clonedCard.style.transform = "none";
+            clonedCard.style.boxShadow = "none";
+            clonedCard.style.backdropFilter = "none";
+            clonedCard.style.filter = "none";
+          }
+        }
       });
 
       const imgData = canvas.toDataURL("image/png");
+      const imgWidth = canvas.width / 2;
+      const imgHeight = canvas.height / 2;
+
       const pdf = new jsPDF({
-        orientation: "portrait",
+        orientation: imgWidth > imgHeight ? "landscape" : "portrait",
         unit: "px",
-        format: [canvas.width / 2, canvas.height / 2]
+        format: [imgWidth, imgHeight]
       });
 
-      pdf.addImage(imgData, "PNG", 0, 0, canvas.width / 2, canvas.height / 2);
-      pdf.save(`HACK-2026-CONFIRMATION-${details.registrationId}.pdf`);
+      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      pdf.save(`HACK-2026-TICKET-${details.registrationId}.pdf`);
     } catch (err) {
-      console.error("PDF download error:", err);
-      alert("Error compiling PDF. Please print page or take a screenshot.");
+      console.error("PDF canvas compile error, opening browser print:", err);
+      window.print();
     } finally {
       setDownloading(false);
     }
