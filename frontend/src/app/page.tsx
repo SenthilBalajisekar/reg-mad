@@ -68,8 +68,18 @@ export default function Home() {
       mouseX.set((e.clientX / window.innerWidth  - 0.5) * 2);
       mouseY.set((e.clientY / window.innerHeight - 0.5) * 2);
     };
+    const handleTouch = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouseX.set((e.touches[0].clientX / window.innerWidth  - 0.5) * 2);
+        mouseY.set((e.touches[0].clientY / window.innerHeight - 0.5) * 2);
+      }
+    };
     window.addEventListener('mousemove', handleMouse);
-    return () => window.removeEventListener('mousemove', handleMouse);
+    window.addEventListener('touchmove', handleTouch, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouse);
+      window.removeEventListener('touchmove', handleTouch);
+    };
   }, [mouseX, mouseY]);
 
 
@@ -216,10 +226,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_50%,_rgba(0,0,0,0.04)_100%)]" />
       </div>
 
-      {/* 3D phone — fixed background layer (desktop only) */}
-      <div className="hidden md:block">
-        <PhoneScene scrollProgress={smoothProgress} mouseX={mouseX} mouseY={mouseY} />
-      </div>
+      {/* 3D phone — fixed background animation layer for both desktop & mobile screens */}
+      <PhoneScene scrollProgress={smoothProgress} mouseX={mouseX} mouseY={mouseY} />
 
       {/* Cursor glow tracker */}
       <CustomCursor />
@@ -228,16 +236,16 @@ export default function Home() {
       <Navbar />
 
       {/* ═══════════════ HERO SECTION ═══════════════ */}
-      {/* Desktop: text left-aligned, right half free for 3D phone */}
-      <section id="home" className="relative min-h-screen flex flex-col justify-center px-6 pt-24 pb-16 overflow-hidden z-10">
+      {/* Responsive layout: centered on mobile, left-aligned on desktop */}
+      <section id="home" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-24 pb-16 overflow-hidden z-10">
 
-        <div className="max-w-xl flex flex-col items-start gap-6 mt-8 md:mt-12 md:ml-8 lg:ml-20">
+        <div className="max-w-xl flex flex-col items-center text-center md:items-start md:text-left gap-5 md:gap-6 mt-6 md:mt-12 mx-auto md:ml-8 lg:ml-20">
           
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-violet-200 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-violet-600"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-violet-200 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-violet-700 bg-white/80 shadow-sm"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-ping" />
             {EVENT_CONFIG.collegeName} Presents
@@ -247,7 +255,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="text-4xl md:text-7xl font-black font-orbitron tracking-tight leading-none text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-violet-700 to-blue-600"
+            className="text-3xl sm:text-5xl md:text-7xl font-black font-orbitron tracking-tight leading-tight md:leading-none text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-violet-800 to-blue-700 drop-shadow-sm"
           >
             HACK THE FUTURE
           </motion.h1>
@@ -256,7 +264,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-lg md:text-2xl font-mono uppercase tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-500"
+            className="text-sm sm:text-lg md:text-2xl font-mono uppercase tracking-[0.2em] md:tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-violet-700 to-pink-600 font-bold"
           >
             {EVENT_CONFIG.tagline}
           </motion.h2>
@@ -265,7 +273,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-xs md:text-sm text-slate-800 max-w-xl leading-relaxed font-sans"
+            className="text-xs md:text-sm text-slate-800 max-w-xl leading-relaxed font-sans glass-panel p-4 md:p-0 rounded-xl md:bg-transparent md:border-none border border-slate-200/80 bg-white/75 backdrop-blur-md shadow-sm md:shadow-none"
           >
             Turn your ideas into real-world solutions. Team up, build something meaningful, and showcase your creativity at our college hackathon.
           </motion.p>
@@ -274,7 +282,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-col sm:flex-row items-start gap-4 mt-4 w-full"
+            className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3.5 mt-2 md:mt-4 w-full"
           >
             <Link
               href="/register"
@@ -284,7 +292,7 @@ export default function Home() {
             </Link>
             <a
               href="#about"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-slate-700 text-center hover:text-slate-900 border border-slate-200 hover:border-violet-300 transition-all duration-300"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-slate-700 text-center hover:text-slate-900 border border-slate-200/90 bg-white/80 hover:border-violet-300 transition-all duration-300"
             >
               EXPLORE HACKATHON ↓
             </a>
@@ -294,7 +302,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-10 md:mt-14"
+            className="mt-6 md:mt-14 w-full"
           >
             <Countdown />
           </motion.div>

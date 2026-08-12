@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial, RoundedBox, ContactShadows } from '@react-three/drei';
-import { useRef, useMemo, Suspense } from 'react';
+import { useRef, useMemo, Suspense, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import type { MotionValue } from 'framer-motion';
 
@@ -338,10 +338,23 @@ function PhoneGroup({
   const internalMats = useRef<THREE.MeshStandardMaterial[]>([]);
 
   /* ── INITIAL STATE: IMMEDIATELY LOADS ON THE RIGHT SIDE (posX: 2.3) ── */
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   const ls = useRef({
     rotY: 0.25, rotX: 0.05,
-    posX: 2.3,  posY: 0.1,
-    scale: 1.0, explosion: 0,
+    posX: typeof window !== 'undefined' && window.innerWidth < 768 ? 0 : 2.3,
+    posY: 0.1,
+    scale: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.68 : 1.0,
+    explosion: 0,
     glowColor: new THREE.Color('#8b5cf6'),
   });
   const targetGlow = useRef(new THREE.Color('#8b5cf6'));
@@ -358,13 +371,18 @@ function PhoneGroup({
     const target = getSection(sp);
     targetGlow.current.set(target.glow);
 
+    /* Responsive position and scale targets for Mobile vs Desktop */
+    const targetX = isMobile ? 0 : target.posX;
+    const targetY = isMobile ? target.posY * 0.4 : target.posY;
+    const targetScale = isMobile ? target.scale * 0.68 : target.scale;
+
     /* Silky-smooth 60 FPS anti-lag frame interpolation */
     const L = THREE.MathUtils.damp(0, 1, 14, smoothDelta);
     ls.current.rotY      = THREE.MathUtils.lerp(ls.current.rotY,      target.rotY + mx,  L);
     ls.current.rotX      = THREE.MathUtils.lerp(ls.current.rotX,      target.rotX - my,  L);
-    ls.current.posX      = THREE.MathUtils.lerp(ls.current.posX,      target.posX,       L);
-    ls.current.posY      = THREE.MathUtils.lerp(ls.current.posY,      target.posY,       L);
-    ls.current.scale     = THREE.MathUtils.lerp(ls.current.scale,     target.scale,      L);
+    ls.current.posX      = THREE.MathUtils.lerp(ls.current.posX,      targetX,           L);
+    ls.current.posY      = THREE.MathUtils.lerp(ls.current.posY,      targetY,           L);
+    ls.current.scale     = THREE.MathUtils.lerp(ls.current.scale,     targetScale,       L);
     ls.current.explosion = THREE.MathUtils.lerp(ls.current.explosion, target.explosion,  L * 0.95);
     ls.current.glowColor.lerp(targetGlow.current, 0.08);
 
@@ -834,12 +852,21 @@ export default function PhoneScene({
   mouseX: MotionValue<number>;
   mouseY: MotionValue<number>;
 }) {
+  const [dpr, setDpr] = useState<[number, number]>([1.0, 1.5]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const isMobile = window.innerWidth < 768;
+      setDpr(isMobile ? [0.75, 1.25] : [1.0, Math.min(1.5, window.devicePixelRatio)]);
+    }
+  }, []);
+
   return (
     <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 2 }}>
       <Canvas
         camera={{ position: [0, 0, 7.5], fov: 42 }}
         shadows={{ type: THREE.PCFSoftShadowMap }}
-        dpr={typeof window !== 'undefined' ? [1.0, Math.min(1.5, window.devicePixelRatio)] : 1.0}
+        dpr={dpr}
         gl={{
           antialias: true,
           alpha: true,
