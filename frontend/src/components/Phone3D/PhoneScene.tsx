@@ -374,7 +374,7 @@ function PhoneGroup({
     /* Responsive position and scale targets for Mobile vs Desktop */
     const targetX = isMobile ? 0 : target.posX;
     const targetY = isMobile ? target.posY * 0.4 : target.posY;
-    const targetScale = isMobile ? target.scale * 0.68 : target.scale;
+    const targetScale = isMobile ? target.scale * 0.58 : target.scale;
 
     /* Silky-smooth 60 FPS anti-lag frame interpolation */
     const L = THREE.MathUtils.damp(0, 1, 14, smoothDelta);
@@ -862,7 +862,7 @@ export default function PhoneScene({
   }, []);
 
   return (
-    <div className="hidden md:block fixed inset-0 pointer-events-none" style={{ zIndex: 2 }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 0 }}>
       <Canvas
         camera={{ position: [0, 0, 7.5], fov: 42 }}
         shadows={{ type: THREE.PCFSoftShadowMap }}
