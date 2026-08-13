@@ -93,9 +93,10 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     }
 
     // Check Duplicate Emails
+    const emailPlaceholders = allEmails.map(() => "?").join(",");
     const [emailCheck] = await connection.query<RowDataPacket[]>(
-      "SELECT email, full_name FROM participants WHERE email IN (?)",
-      [allEmails]
+      `SELECT email, full_name FROM participants WHERE email IN (${emailPlaceholders})`,
+      allEmails
     );
     if (emailCheck.length > 0) {
       res.status(400).json({ 
@@ -106,9 +107,10 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     }
 
     // Check Duplicate Student IDs
+    const studentIdPlaceholders = allStudentIds.map(() => "?").join(",");
     const [studentIdCheck] = await connection.query<RowDataPacket[]>(
-      "SELECT student_id, full_name FROM participants WHERE student_id IN (?)",
-      [allStudentIds]
+      `SELECT student_id, full_name FROM participants WHERE student_id IN (${studentIdPlaceholders})`,
+      allStudentIds
     );
     if (studentIdCheck.length > 0) {
       res.status(400).json({ 
@@ -187,7 +189,7 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   } catch (error: any) {
     await connection.rollback();
     console.error("Error in registration transaction:", error);
-    res.status(500).json({ error: "Registration failed. Server or database error occurred." });
+    res.status(500).json({ error: error.message || "Registration failed. Server or database error occurred." });
   } finally {
     connection.release();
   }
