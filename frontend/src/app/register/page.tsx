@@ -181,7 +181,11 @@ export default function Register() {
       router.push(`/success?regId=${resData.registrationId}&teamName=${encodeURIComponent(data.teamName)}`);
     } catch (err: any) {
       console.error(err);
-      setApiError(err.message || "Server connection failed. Make sure server is running.");
+      if (err.name === "TypeError" && err.message === "Failed to fetch") {
+        setApiError("Backend API Server Unreachable: http://localhost:5000 cannot be reached from live HTTPS site. Please host backend server publicly or configure NEXT_PUBLIC_API_URL in Netlify.");
+      } else {
+        setApiError(err.message || "Server connection failed. Make sure server is running.");
+      }
     } finally {
       setIsSubmitting(false);
     }
