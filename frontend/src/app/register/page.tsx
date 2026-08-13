@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,6 +59,23 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totalRegisteredTeams, setTotalRegisteredTeams] = useState<number>(0);
+
+  useEffect(() => {
+    const checkRegistrationLimit = async () => {
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`);
+        if (res.ok) {
+          const data = await res.json();
+          setTotalRegisteredTeams(data.totalTeams ?? data.totalRegistrations ?? 0);
+        }
+      } catch (e) {
+        console.error("Could not fetch registration stats:", e);
+      }
+    };
+    checkRegistrationLimit();
+  }, []);
 
   const {
     register,
@@ -225,7 +242,31 @@ export default function Register() {
 
       {/* WIZARD CONTAINER */}
       <main className="relative z-10 flex-grow flex items-center justify-center px-4 py-12 md:py-16">
-        <div className="w-full max-w-3xl glass-panel p-6 md:p-10 rounded-2xl border border-violet-500/30 bg-[#0e0926]/90 shadow-2xl flex flex-col gap-8">
+        {totalRegisteredTeams >= 20 ? (
+          <div className="w-full max-w-2xl glass-panel p-8 md:p-12 rounded-2xl border border-rose-500/40 bg-[#0e0926]/90 shadow-2xl text-center flex flex-col items-center gap-6">
+            <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+              <AlertCircle size={36} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-mono tracking-[0.3em] text-slate-300 font-bold uppercase">
+                REGISTRATION HAS
+              </span>
+              <h1 className="text-3xl md:text-5xl font-orbitron font-extrabold text-neon-pink text-glow-pink uppercase tracking-wider">
+                CLOSED
+              </h1>
+              <p className="text-sm md:text-base text-slate-300 font-mono mt-2 max-w-md mx-auto leading-relaxed">
+                The maximum limit of <span className="text-cyan-300 font-bold">20 teams</span> has been reached ({totalRegisteredTeams}/20 registered). No further team registrations are allowed.
+              </p>
+            </div>
+            <button
+              onClick={() => router.push("/")}
+              className="mt-2 px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white font-bold shadow-lg hover:shadow-cyan-500/25 transition-all"
+            >
+              ← RETURN TO HOME
+            </button>
+          </div>
+        ) : (
+          <div className="w-full max-w-3xl glass-panel p-6 md:p-10 rounded-2xl border border-violet-500/30 bg-[#0e0926]/90 shadow-2xl flex flex-col gap-8">
           
           {/* STEP PROGRESS BAR */}
           <div className="w-full flex items-center justify-between relative px-6">
@@ -661,6 +702,7 @@ export default function Register() {
             </div>
           </form>
         </div>
+        )}
       </main>
 
       {/* FOOTER */}

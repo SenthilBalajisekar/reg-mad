@@ -10,7 +10,21 @@ const router = (0, express_1.Router)();
 // Endpoint: POST /api/registrations (Full Transaction Sign-Up)
 router.post("/", async (req, res) => {
     const { teamName, track, problemStatement, technologyStack, leader, members } = req.body;
-    // 1. Inputs validation
+    // 1. Check total registered teams limit (20 teams limit)
+    const MAX_TEAMS_LIMIT = event_1.EVENT_CONFIG.maxTotalTeams || 20;
+    try {
+        const [teamCountRows] = await database_1.default.query("SELECT COUNT(*) as count FROM registrations");
+        if (teamCountRows[0]?.count >= MAX_TEAMS_LIMIT) {
+            res.status(400).json({
+                error: `Registration is closed. The maximum limit of ${MAX_TEAMS_LIMIT} teams has been reached.`
+            });
+            return;
+        }
+    }
+    catch (err) {
+        console.error("Error checking registration limit:", err);
+    }
+    // 2. Inputs validation
     if (!teamName || !leader) {
         res.status(400).json({ error: "Please complete team name and leader details." });
         return;

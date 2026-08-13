@@ -360,7 +360,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.6 }}
             className="mt-6 md:mt-14 w-full"
           >
-            <Countdown />
+            <Countdown teamsCount={realTimeStats.teamsCount} isLoaded={realTimeStats.isLoaded} />
           </motion.div>
         </div>
 
