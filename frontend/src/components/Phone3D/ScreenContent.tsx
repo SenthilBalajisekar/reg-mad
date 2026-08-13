@@ -439,6 +439,52 @@ function MembersScreen() {
   );
 }
 
+function RegisterScreen() {
+  return (
+    <PhoneFrame accent="#3b82f6">
+      <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10, height: '100%', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <motion.div
+            style={{ fontSize: 32 }}
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >🚀</motion.div>
+          <div style={{ fontSize: 12, fontWeight: 900, color: '#fff', marginTop: 8, lineHeight: 1.4 }}>
+            READY TO<br />BUILD?
+          </div>
+          <div style={{ fontSize: 8, color: '#3b82f6', letterSpacing: 2, marginTop: 6, textTransform: 'uppercase' }}>
+            Join the Hackathon
+          </div>
+        </div>
+        <Card accent="#3b82f6">
+          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Team size</div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {['2','3','4'].map((n) => (
+              <div key={n} style={{ flex: 1, textAlign: 'center', padding: '5px 0', borderRadius: 6,
+                background: n==='3' ? '#3b82f6' : 'rgba(255,255,255,0.06)',
+                fontSize: 10, fontWeight: 700, color: n==='3' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
+                {n}
+              </div>
+            ))}
+          </div>
+        </Card>
+        <motion.div
+          style={{
+            textAlign: 'center', padding: '10px 0', borderRadius: 8,
+            background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
+            fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase',
+            boxShadow: '0 0 20px #3b82f655',
+          }}
+          animate={{ boxShadow: ['0 0 10px #3b82f644','0 0 24px #3b82f688','0 0 10px #3b82f644'] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          REGISTER NOW
+        </motion.div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
 /* ── Main export ─────────────────────────────────────────── */
 const SCREEN_MAP: Record<string, React.ComponentType> = {
   hero: HeroScreen,
