@@ -2,8 +2,8 @@ export const EVENT_CONFIG = {
   eventName: "MOBILE APP CLUB HACKATHON 2026",
   tagline: "BUILD THE UNEXPECTED",
   collegeName: "",
-  eventDate: "March 13 - 14, 2026",
-  registrationDeadline: "December 31, 2026",
+  eventDate: "August 22, 2026",
+  registrationDeadline: "August 22, 2026 23:59:59",
   maxTotalTeams: 20,
   venue: "Main Auditorium & Labs",
   prizePool: "₹50,000",
@@ -24,12 +24,12 @@ export const EVENT_CONFIG = {
     { id: "social_web", name: "Social Impact Web Solutions", icon: "HeartHandshake", desc: "Create accessible web platforms and community web portals designed to solve real-time societal problems." }
   ],
   timeline: [
-    { phase: "01", title: "REGISTRATION", date: "Feb 08 - Mar 05", desc: "Form your team of 2-3 members and register online through this platform." },
-    { phase: "02", title: "TEAM FORMATION", date: "Mar 06 - Mar 08", desc: "Finalize roles, brainstorm ideas, and set up your development workspace templates." },
-    { phase: "03", title: "IDEA SUBMISSION", date: "Mar 09", desc: "Submit a brief 1-page proposal and wireframe design of your planned hack project." },
-    { phase: "04", title: "HACKATHON MAIN EVENT", date: "Mar 13 - 14", desc: "5-hour sprint. Build, break, refactor, and finalize your prototype at the college venue." },
-    { phase: "05", title: "FINAL PRESENTATION", date: "Mar 14 (3:00 PM)", desc: "Pitch your product live in front of tech industry mentors and college jury panels." },
-    { phase: "06", title: "WINNERS ANNOUNCED", date: "Mar 14 (6:00 PM)", desc: "Jury assessment completes. Trophies, cash prizes, and merchandise are awarded." }
+    { phase: "01", title: "REGISTRATION", date: "Aug 08 - Aug 22", desc: "Form your team of 2-3 members and register online through this platform." },
+    { phase: "02", title: "TEAM FORMATION", date: "Aug 18 - Aug 20", desc: "Finalize roles, brainstorm ideas, and set up your development workspace templates." },
+    { phase: "03", title: "IDEA SUBMISSION", date: "Aug 21", desc: "Submit a brief 1-page proposal and wireframe design of your planned hack project." },
+    { phase: "04", title: "HACKATHON MAIN EVENT", date: "Aug 22", desc: "5-hour sprint. Build, break, refactor, and finalize your prototype at the college venue." },
+    { phase: "05", title: "FINAL PRESENTATION", date: "Aug 22 (3:00 PM)", desc: "Pitch your product live in front of tech industry mentors and college jury panels." },
+    { phase: "06", title: "WINNERS ANNOUNCED", date: "Aug 22 (6:00 PM)", desc: "Jury assessment completes. Trophies, cash prizes, and merchandise are awarded." }
   ],
   faqs: [
     { q: "Who can participate?", a: "Any student currently enrolled in an undergraduate or postgraduate program at our university is welcome to join!" },
@@ -41,7 +41,7 @@ export const EVENT_CONFIG = {
     { q: "Can we use AI tools?", a: "Yes! Utilizing AI tools like GitHub Copilot, ChatGPT, or Cursor to accelerate your coding is allowed and encouraged." },
     { q: "How will projects be judged?", a: "Judging will be based on Innovation (30%), Execution & Technical Difficulty (30%), UX/UI Design (20%), and Pitch/Presentation (20%)." },
     { q: "What should we submit?", a: "You will submit a working GitHub repository link and a short demo video of your application at the end of the hackathon." },
-    { q: "When does registration close?", a: "Registration closes strictly on March 05, 2026 at 11:59 PM IST." }
+    { q: "When does registration close?", a: "Registration closes strictly on August 22, 2026 at 11:59 PM IST (or when 20 teams registered limit is reached)." }
   ],
   rules: [
     { title: "Team Integrity", detail: "All team members must be registered. Sharing accounts or combining projects from non-registered students is prohibited." },
