@@ -348,7 +348,7 @@ export default function Home() {
             </Link>
             <a
               href="#about"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-slate-700 text-center hover:text-slate-900 border border-slate-200/90 bg-white/80 hover:border-violet-300 transition-all duration-300"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-white font-bold text-center border border-violet-500/50 bg-slate-900/85 hover:border-cyan-400 transition-all duration-300 shadow-md"
             >
               EXPLORE HACKATHON ↓
             </a>
@@ -369,16 +369,16 @@ export default function Home() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-700"
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-300"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            className="w-5 h-8 rounded-full border border-slate-300 flex items-start justify-center pt-1"
+            className="w-5 h-8 rounded-full border border-violet-400/50 flex items-start justify-center pt-1"
           >
-            <div className="w-1 h-2 rounded-full bg-violet-500 animate-pulse" />
+            <div className="w-1 h-2 rounded-full bg-cyan-400 animate-pulse" />
           </motion.div>
-          <span className="text-[9px] font-mono tracking-widest uppercase text-slate-600">SCROLL</span>
+          <span className="text-[9px] font-mono tracking-widest uppercase text-cyan-300 font-bold">SCROLL</span>
         </motion.div>
       </section>
 
@@ -564,7 +564,7 @@ export default function Home() {
           </div>
 
           {/* Mobile timeline */}
-          <div className="lg:hidden flex flex-col gap-10 relative w-full pl-6 md:pl-12 border-l border-slate-200">
+          <div className="lg:hidden flex flex-col gap-10 relative w-full pl-6 md:pl-12 border-l border-violet-500/40">
             {EVENT_CONFIG.timeline.map((item, i) => (
               <motion.div
                 key={item.phase}
@@ -574,12 +574,12 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 className="relative group flex flex-col gap-2"
               >
-                <div className="absolute -left-[37px] md:-left-[61px] top-0 w-8 h-8 rounded-full bg-white border-2 border-slate-200 shadow-sm flex items-center justify-center z-10 group-hover:border-violet-400 group-hover:shadow-[0_0_8px_rgba(124,58,237,0.2)] transition-all duration-300">
-                  <span className="font-orbitron text-[10px] font-black text-slate-700 group-hover:text-violet-600">{item.phase}</span>
+                <div className="absolute -left-[37px] md:-left-[61px] top-0 w-8 h-8 rounded-full bg-slate-900 border-2 border-violet-500/60 shadow-md flex items-center justify-center z-10 group-hover:border-cyan-400 group-hover:shadow-[0_0_12px_rgba(56,189,248,0.35)] transition-all duration-300">
+                  <span className="font-orbitron text-[10px] font-black text-cyan-300">{item.phase}</span>
                 </div>
-                <span className="text-[9px] font-mono text-violet-600 tracking-widest font-bold">{item.date}</span>
-                <h3 className="font-orbitron text-sm font-bold tracking-wider text-slate-900 uppercase">{item.title}</h3>
-                <p className="text-xs text-slate-800 leading-relaxed font-sans max-w-lg">{item.desc}</p>
+                <span className="text-[10px] font-mono text-cyan-400 tracking-widest font-bold">{item.date}</span>
+                <h3 className="font-orbitron text-sm font-extrabold tracking-wider text-white uppercase drop-shadow-[0_0_12px_rgba(168,85,247,0.3)]">{item.title}</h3>
+                <p className="text-xs text-slate-200 leading-relaxed font-sans max-w-lg">{item.desc}</p>
               </motion.div>
             ))}
           </div>

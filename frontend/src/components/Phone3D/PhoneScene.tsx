@@ -862,7 +862,7 @@ export default function PhoneScene({
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 2 }}>
+    <div className="hidden md:block fixed inset-0 pointer-events-none" style={{ zIndex: 2 }}>
       <Canvas
         camera={{ position: [0, 0, 7.5], fov: 42 }}
         shadows={{ type: THREE.PCFSoftShadowMap }}
