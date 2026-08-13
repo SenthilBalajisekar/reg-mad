@@ -8,10 +8,12 @@ export const EVENT_CONFIG = {
   prizePool: "₹50,000",
   minTeamSize: 2,
   maxTeamSize: 3,
-  prizes: [
-    { rank: "2nd", title: "Second Place", amount: "₹15,000", desc: "Runner Up Cash Prize + Certificates", color: "from-slate-400 to-slate-500", glow: "rgba(148, 163, 184, 0.4)" },
-    { rank: "1st", title: "First Place", amount: "₹25,000", desc: "Grand Winner Trophy + Cash + Goodies", color: "from-yellow-400 via-amber-500 to-yellow-600", glow: "rgba(234, 179, 8, 0.5)", premium: true },
-    { rank: "3rd", title: "Third Place", amount: "₹10,000", desc: "Second Runner Up Cash Prize + Certificates", color: "from-amber-700 to-amber-800", glow: "rgba(180, 83, 9, 0.4)" }
+  clubMembers: [
+    { id: "president", role: "PRESIDENT", name: "THIRUKUMARAN P S", dept: "IT DEPT", icon: "Crown", color: "from-amber-400 via-yellow-500 to-amber-600", glow: "rgba(245, 158, 11, 0.4)", tag: "Executive Leader" },
+    { id: "vice_president", role: "VICE-PRESIDENT", name: "DHANYA R", dept: "CSE DEPT", icon: "Award", color: "from-purple-400 via-indigo-500 to-purple-600", glow: "rgba(168, 85, 247, 0.4)", tag: "Operations Lead" },
+    { id: "secretary", role: "SECRETARY", name: "RAHUL J C", dept: "ECE DEPT", icon: "FileText", color: "from-cyan-400 via-blue-500 to-cyan-600", glow: "rgba(6, 182, 212, 0.4)", tag: "Documentation & Comms" },
+    { id: "pr_coordinator", role: "PR COORDINATOR", name: "THIVAGARAN M", dept: "MECH DEPT", icon: "Megaphone", color: "from-pink-400 via-rose-500 to-pink-600", glow: "rgba(244, 63, 94, 0.4)", tag: "Outreach & Media" },
+    { id: "treasurer", role: "TREASURER", name: "SENTHIL BALAJI S", dept: "AI&ML DEPT", icon: "Coins", color: "from-emerald-400 via-teal-500 to-emerald-600", glow: "rgba(16, 185, 129, 0.4)", tag: "Finance & Accounts" }
   ],
   tracks: [
     { id: "fullstack_web", name: "Full-Stack Web Development", icon: "Globe", desc: "Build responsive, high-performance web applications and modern portals to solve real-time problems." },

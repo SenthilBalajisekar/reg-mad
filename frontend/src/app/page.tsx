@@ -16,7 +16,14 @@ import {
   Users,
   Trophy,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Crown,
+  FileText,
+  Megaphone,
+  Coins,
+  User,
+  Edit3,
+  Check
 } from "lucide-react";
 
 import Navbar from "@/components/Navbar";
@@ -32,7 +39,7 @@ import { EVENT_CONFIG } from "@/config/event";
 const PhoneScene = dynamic(() => import("@/components/Phone3D/PhoneScene"), { ssr: false });
 
 const iconMap: Record<string, React.ComponentType<any>> = {
-  Smartphone, Cpu, Globe, ShieldAlert, HeartHandshake, Award
+  Smartphone, Cpu, Globe, ShieldAlert, HeartHandshake, Award, Crown, FileText, Megaphone, Coins
 };
 
 // Section color palettes — deep space cyber gradients for obsidian background
@@ -47,8 +54,8 @@ const SECTION_GRADIENTS = [
   { bg: "linear-gradient(180deg, #04091a 0%, #081230 50%, #050a1d 100%)" },
   // Timeline: deep periwinkle indigo
   { bg: "linear-gradient(180deg, #060924 0%, #0d1240 50%, #070928 100%)" },
-  // Prizes: deep warm magenta amber space
-  { bg: "linear-gradient(180deg, #1f041a 0%, #38072c 50%, #1c0316 100%)" },
+  // Members: deep neon violet magenta space
+  { bg: "linear-gradient(180deg, #18082e 0%, #2e0d4f 50%, #150628 100%)" },
   // Rules/FAQ: deep violet space
   { bg: "linear-gradient(180deg, #0f0a28 0%, #1a0f3d 50%, #09051b 100%)" }
 ];
@@ -58,6 +65,7 @@ const SECTION_GRADIENTS = [
 
 export default function Home() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
+  const [memberNames, setMemberNames] = useState<Record<string, string>>({});
   const [realTimeStats, setRealTimeStats] = useState<{
     teamsCount: number;
     participantsCount: number;
@@ -67,6 +75,24 @@ export default function Home() {
     participantsCount: 0,
     isLoaded: false
   });
+
+  // Load saved club member names from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("mac_club_member_names");
+    if (saved) {
+      try {
+        setMemberNames(JSON.parse(saved));
+      } catch (e) {
+        console.error("Error parsing saved member names", e);
+      }
+    }
+  }, []);
+
+  const handleMemberNameChange = (id: string, name: string) => {
+    const updated = { ...memberNames, [id]: name };
+    setMemberNames(updated);
+    localStorage.setItem("mac_club_member_names", JSON.stringify(updated));
+  };
 
   // Fetch real-time registration stats directly from backend MySQL database
   useEffect(() => {
@@ -560,61 +586,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════ PRIZES SECTION ═══════════════ */}
-      <section id="prizes" className="relative py-24 px-6 z-10">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-500/40 to-transparent" />
+
+
+      {/* ═══════════════ CLUB MEMBERS SECTION ═══════════════ */}
+      <section id="members" className="relative py-24 px-6 z-10">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
         
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-16">
           <div className="text-center flex flex-col gap-3">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-amber-600 uppercase"
+              className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-violet-400 uppercase font-bold"
             >
-              Victory Rewards
+              Executive Leadership
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase"
             >
-              PRIZE POOL: {EVENT_CONFIG.prizePool}
+              CLUB MEMBERS
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-xs md:text-sm text-white font-semibold max-w-xl leading-relaxed mx-auto font-sans glass-panel p-4 md:p-5 rounded-xl bg-slate-900/85 backdrop-blur-md border border-slate-700/80 shadow-lg text-white"
+              className="text-xs md:text-sm text-slate-300 font-semibold max-w-xl leading-relaxed mx-auto font-sans glass-panel p-4 md:p-5 rounded-xl bg-slate-900/85 backdrop-blur-md border border-slate-700/80 shadow-lg text-white"
             >
-              Compete, out-build, and conquer! Trophies, developer goodies, and cash prizes will be awarded to the top three innovations.
+              Meet the core executive leadership team driving Mobile App Club 2026.
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end w-full max-w-5xl">
-            {EVENT_CONFIG.prizes.map((prize, i) => (
-              <motion.div
-                key={prize.rank}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.15 }}
-                whileHover={{ y: -5 }}
-                className={`relative rounded-2xl flex flex-col items-center text-center p-8 glass-panel overflow-hidden ${
-                  prize.premium
-                    ? "lg:h-[400px] border-2 border-amber-300/60 shadow-[0_8px_40px_rgba(245,158,11,0.15)] order-first lg:order-none"
-                    : "lg:h-[340px] border border-slate-200"
-                }`}
-              >
-                {prize.premium && (
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-56 h-12 bg-yellow-500/20 blur-xl pointer-events-none" />
-                )}
-                <div className="w-16 h-16 rounded-full bg-white/5 border border-slate-200 flex items-center justify-center mb-6 relative z-10">
-                  <Trophy className={`w-8 h-8 ${prize.premium ? "text-amber-500" : "text-slate-700"}`} />
-                </div>
-                <span className="font-mono text-xs text-cyan-400 uppercase tracking-widest font-bold mb-1">{prize.rank} Place</span>
-                <h3 className="font-orbitron text-lg font-black tracking-wider text-white uppercase mb-3">{prize.title}</h3>
-                <span className={`text-3xl md:text-5xl font-orbitron font-extrabold text-transparent bg-clip-text bg-gradient-to-r ${prize.color} tracking-tight mb-4`}>
-                  {prize.amount}
-                </span>
-                <p className="text-xs text-slate-300 font-sans leading-relaxed">{prize.desc}</p>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch w-full max-w-7xl">
+            {EVENT_CONFIG.clubMembers.map((member, i) => {
+              const Icon = iconMap[member.icon] || Award;
+              return (
+                <motion.div
+                  key={member.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  whileHover={{ y: -6 }}
+                  className="relative rounded-2xl flex flex-col items-center text-center p-6 glass-panel overflow-hidden border border-violet-500/30 bg-slate-900/80 hover:border-cyan-400/50 shadow-xl transition-all duration-300 group"
+                >
+                  <div className="w-14 h-14 rounded-full bg-slate-800/90 border border-violet-400/40 flex items-center justify-center mb-4 relative z-10 shadow-inner group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="w-7 h-7 text-cyan-300 group-hover:text-amber-400 transition-colors" />
+                  </div>
+                  
+                  <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest font-bold mb-1">
+                    {member.tag}
+                  </span>
+                  
+                  <h3 className="font-orbitron text-xs font-extrabold tracking-wider text-slate-300 uppercase mb-4">
+                    {member.role}
+                  </h3>
+
+                  <div className="mt-auto w-full flex flex-col items-center gap-2.5 relative z-10 pt-3 border-t border-slate-800/80">
+                    <span className="font-orbitron text-xs md:text-sm font-black tracking-wide text-white drop-shadow-[0_0_12px_rgba(168,85,247,0.3)]">
+                      {member.name}
+                    </span>
+
+                    <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest bg-violet-950/80 border border-violet-500/50 text-cyan-300 uppercase shadow-sm">
+                      {member.dept}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>

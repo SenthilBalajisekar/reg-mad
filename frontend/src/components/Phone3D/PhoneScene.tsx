@@ -241,37 +241,37 @@ function getPBRTextures() {
 ───────────────────────────────────────────────────────── */
 const SECTIONS = [
   {
-    range: [0, 0.15],    name: 'hero',
+    range: [0, 0.14],    name: 'hero',
     explosion: 0.00, rotY: 0.25, rotX: 0.05,
     posX: 2.3, posY: 0.1, scale: 1.00, glow: '#8b5cf6',
   },
   {
-    range: [0.15, 0.30], name: 'stats',
+    range: [0.14, 0.28], name: 'stats',
     explosion: 0.25, rotY: 1.05, rotX: 0.14,
     posX: 1.2, posY: 0.0, scale: 0.98, glow: '#a855f7',
   },
   {
-    range: [0.30, 0.43], name: 'about',
+    range: [0.28, 0.42], name: 'about',
     explosion: 0.78, rotY: 2.15, rotX: -0.15,
     posX: 0.0, posY: 0.0, scale: 1.05, glow: '#c084fc',
   },
   {
-    range: [0.43, 0.56], name: 'tracks',
+    range: [0.42, 0.56], name: 'tracks',
     explosion: 1.00, rotY: 3.35, rotX: 0.12,
     posX: 0.0, posY: 0.0, scale: 1.02, glow: '#8b5cf6',
   },
   {
-    range: [0.56, 0.68], name: 'timeline',
+    range: [0.56, 0.70], name: 'timeline',
     explosion: 0.55, rotY: 4.65, rotX: -0.10,
     posX: 0.0, posY: 0.0, scale: 1.02, glow: '#a855f7',
   },
   {
-    range: [0.68, 0.83], name: 'prizes',
+    range: [0.70, 0.84], name: 'members',
     explosion: 0.08, rotY: 5.75, rotX: 0.08,
-    posX: 0.0, posY: -0.1, scale: 1.08, glow: '#f59e0b',
+    posX: 0.0, posY: -0.1, scale: 1.08, glow: '#a855f7',
   },
   {
-    range: [0.83, 1.00], name: 'register',
+    range: [0.84, 1.00], name: 'register',
     explosion: 0.00, rotY: 6.28, rotX: 0.00,
     posX: 0.0, posY: 0.0, scale: 1.20, glow: '#a855f7',
   },

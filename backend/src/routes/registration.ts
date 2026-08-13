@@ -296,4 +296,79 @@ router.get("/dashboard/stats", async (req: Request, res: Response): Promise<void
   }
 });
 
+// Endpoint: DELETE /api/registrations/reset/all (Clear ALL registered teams)
+router.delete("/reset/all", async (req: Request, res: Response): Promise<void> => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.query("SET FOREIGN_KEY_CHECKS = 0");
+    await connection.query("TRUNCATE TABLE registrations");
+    await connection.query("TRUNCATE TABLE team_members");
+    await connection.query("TRUNCATE TABLE teams");
+    await connection.query("TRUNCATE TABLE participants");
+    await connection.query("SET FOREIGN_KEY_CHECKS = 1");
+
+    res.status(200).json({
+      success: true,
+      message: "All registered teams and participants have been successfully cleared."
+    });
+  } catch (error) {
+    console.error("Error resetting registered teams:", error);
+    res.status(500).json({ error: "Failed to reset registration database tables." });
+  } finally {
+    connection.release();
+  }
+});
+
+// Endpoint: DELETE /api/registrations/:registrationId (Delete a specific team by ID)
+router.delete("/:registrationId", async (req: Request, res: Response): Promise<void> => {
+  const { registrationId } = req.params;
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [regRows] = await connection.query<RowDataPacket[]>(
+      "SELECT team_id FROM registrations WHERE registration_id = ?",
+      [registrationId]
+    );
+
+    if (regRows.length === 0) {
+      res.status(404).json({ error: `Registration ID '${registrationId}' not found.` });
+      await connection.rollback();
+      return;
+    }
+
+    const teamId = regRows[0].team_id;
+
+    // Get participant IDs in the team
+    const [members] = await connection.query<RowDataPacket[]>(
+      "SELECT participant_id FROM team_members WHERE team_id = ?",
+      [teamId]
+    );
+    const participantIds = members.map(m => m.participant_id);
+
+    // Delete relationships and records
+    await connection.query("DELETE FROM registrations WHERE team_id = ?", [teamId]);
+    await connection.query("DELETE FROM team_members WHERE team_id = ?", [teamId]);
+    await connection.query("DELETE FROM teams WHERE id = ?", [teamId]);
+
+    if (participantIds.length > 0) {
+      await connection.query("DELETE FROM participants WHERE id IN (?)", [participantIds]);
+    }
+
+    await connection.commit();
+
+    res.status(200).json({
+      success: true,
+      message: `Team with Registration ID '${registrationId}' has been deleted.`
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error deleting registration:", error);
+    res.status(500).json({ error: "Failed to delete team registration." });
+  } finally {
+    connection.release();
+  }
+});
+
 export default router;

@@ -399,84 +399,41 @@ function TimelineScreen() {
   );
 }
 
-function PrizesScreen() {
+function MembersScreen() {
+  const members = [
+    { role: "President", name: "THIRUKUMARAN P S", dept: "IT DEPT", icon: "👑", color: "#f59e0b" },
+    { role: "Vice-President", name: "DHANYA R", dept: "CSE DEPT", icon: "🎖️", color: "#8b5cf6" },
+    { role: "Secretary", name: "RAHUL J C", dept: "ECE DEPT", icon: "📝", color: "#06b6d4" },
+    { role: "PR Coordinator", name: "THIVAGARAN M", dept: "MECH DEPT", icon: "📢", color: "#f43f5e" },
+    { role: "Treasurer", name: "SENTHIL BALAJI S", dept: "AI&ML DEPT", icon: "💰", color: "#10b981" },
+  ];
   return (
-    <PhoneFrame accent="#f59e0b">
-      <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <div style={{ fontSize: 9, fontWeight: 800, color: '#f59e0b', letterSpacing: 2, textTransform: 'uppercase' }}>
-          🏆 Prize Pool
+    <PhoneFrame accent="#a855f7">
+      <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <div style={{ fontSize: 9, fontWeight: 800, color: '#a855f7', letterSpacing: 2, textTransform: 'uppercase' }}>
+          👥 Executive Committee
         </div>
-        {/* 1st place */}
-        <Card accent="#f59e0b" style={{ textAlign: 'center', padding: '14px 10px', position: 'relative', overflow: 'hidden' }}>
-          <motion.div style={{ fontSize: 24 }} animate={{ rotate: [0,5,-5,0] }} transition={{ duration:3, repeat:Infinity }}>🏆</motion.div>
-          <div style={{ fontSize: 8, color: '#f59e0b', fontWeight: 800, letterSpacing: 2, marginTop: 4 }}>1ST PLACE</div>
-          <div style={{ fontSize: 20, fontWeight: 900, color: '#fbbf24', letterSpacing: -0.5 }}>₹25,000</div>
-          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.5)' }}>Champion</div>
-        </Card>
-        {/* 2nd + 3rd */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-          <Card accent="#94a3b8" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 16 }}>🥈</div>
-            <div style={{ fontSize: 8, color: '#94a3b8', fontWeight: 700 }}>2ND</div>
-            <div style={{ fontSize: 12, fontWeight: 800, color: '#e2e8f0' }}>₹15K</div>
-          </Card>
-          <Card accent="#b45309" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 16 }}>🥉</div>
-            <div style={{ fontSize: 8, color: '#d97706', fontWeight: 700 }}>3RD</div>
-            <div style={{ fontSize: 12, fontWeight: 800, color: '#fde68a' }}>₹10K</div>
-          </Card>
-        </div>
-        <Card style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>
-            + Goodies, Certificates & More
-          </div>
-        </Card>
-      </div>
-    </PhoneFrame>
-  );
-}
-
-function RegisterScreen() {
-  return (
-    <PhoneFrame accent="#3b82f6">
-      <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: 10, height: '100%', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
+        {members.map((m, i) => (
           <motion.div
-            style={{ fontSize: 32 }}
-            animate={{ scale: [1, 1.15, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >🚀</motion.div>
-          <div style={{ fontSize: 12, fontWeight: 900, color: '#fff', marginTop: 8, lineHeight: 1.4 }}>
-            READY TO<br />BUILD?
-          </div>
-          <div style={{ fontSize: 8, color: '#3b82f6', letterSpacing: 2, marginTop: 6, textTransform: 'uppercase' }}>
-            Join the Hackathon
-          </div>
-        </div>
-        <Card accent="#3b82f6">
-          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Team size</div>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {['2','3','4'].map((n) => (
-              <div key={n} style={{ flex: 1, textAlign: 'center', padding: '5px 0', borderRadius: 6,
-                background: n==='3' ? '#3b82f6' : 'rgba(255,255,255,0.06)',
-                fontSize: 10, fontWeight: 700, color: n==='3' ? '#fff' : 'rgba(255,255,255,0.4)' }}>
-                {n}
-              </div>
-            ))}
-          </div>
-        </Card>
-        <motion.div
-          style={{
-            textAlign: 'center', padding: '10px 0', borderRadius: 8,
-            background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
-            fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase',
-            boxShadow: '0 0 20px #3b82f655',
-          }}
-          animate={{ boxShadow: ['0 0 10px #3b82f644','0 0 24px #3b82f688','0 0 10px #3b82f644'] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          REGISTER NOW
-        </motion.div>
+            key={m.role}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.07, duration: 0.3 }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '4px 6px', borderRadius: 6,
+              background: `${m.color}15`,
+              border: `1px solid ${m.color}30`,
+            }}
+          >
+            <span style={{ fontSize: 10 }}>{m.icon}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 7, fontWeight: 800, color: m.color, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.role}</div>
+              <div style={{ fontSize: 8, fontWeight: 700, color: '#fff' }}>{m.name}</div>
+            </div>
+            <span style={{ fontSize: 6, fontWeight: 700, color: '#a855f7', background: 'rgba(255,255,255,0.08)', padding: '2px 4px', borderRadius: 4 }}>{m.dept}</span>
+          </motion.div>
+        ))}
       </div>
     </PhoneFrame>
   );
@@ -489,7 +446,7 @@ const SCREEN_MAP: Record<string, React.ComponentType> = {
   about: AboutScreen,
   tracks: TracksScreen,
   timeline: TimelineScreen,
-  prizes: PrizesScreen,
+  members: MembersScreen,
   register: RegisterScreen,
 };
 
