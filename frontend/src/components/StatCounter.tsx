@@ -59,7 +59,7 @@ export default function StatCounter({ value, duration = 1500, suffix = "", prefi
   };
 
   return (
-    <div ref={elementRef} className="font-orbitron text-4xl sm:text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-300 to-purple-300 tracking-tighter drop-shadow-[0_0_20px_rgba(56,189,248,0.5)]">
+    <div ref={elementRef} className="font-orbitron text-4xl sm:text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-blue-700 to-violet-800 tracking-tighter drop-shadow-sm">
       {prefix}
       {formatNumber(count)}
       {suffix}

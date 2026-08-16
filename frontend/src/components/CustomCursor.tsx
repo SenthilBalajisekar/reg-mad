@@ -42,28 +42,8 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Background Radial Mouse Tracker Glow - Always active once cursor moves */}
+      {/* Background Radial Mouse Tracker Glow */}
       <div className="pointer-events-none fixed inset-0 z-10 bg-radial-glow" />
-
-      {/* Floating magnetic cursor rings, hidden on mobile or before mouse moves */}
-      <motion.div
-        className="fixed top-0 left-0 w-3 h-3 bg-neon-blue rounded-full pointer-events-none z-50 mix-blend-screen shadow-[0_0_8px_#00f0ff] transition-opacity duration-300"
-        style={{
-          x: cursorXSpringInner,
-          y: cursorYSpringInner,
-          opacity: isVisible ? 1 : 0
-        }}
-      />
-      <motion.div
-        className="fixed top-0 left-0 w-8 h-8 border border-neon-purple/50 rounded-full pointer-events-none z-50 transition-opacity duration-300"
-        style={{
-          x: cursorXSpringOuter,
-          y: cursorYSpringOuter,
-          translateX: -10,
-          translateY: -10,
-          opacity: isVisible ? 1 : 0
-        }}
-      />
     </>
   );
 }

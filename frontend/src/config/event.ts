@@ -1,14 +1,24 @@
 export const EVENT_CONFIG = {
-  eventName: "MOBILE APP CLUB HACKATHON 2026",
+  eventName: "APP RADIX - 26",
   tagline: "BUILD THE UNEXPECTED",
+  poweredBy: "POWERED BY ISTE",
   collegeName: "",
   eventDate: "August 22, 2026",
   registrationDeadline: "August 22, 2026 23:59:59",
-  maxTotalTeams: 20,
   venue: "Main Auditorium & Labs",
   prizePool: "₹50,000",
-  minTeamSize: 2,
-  maxTeamSize: 3,
+  minTeamSize: 3,
+  maxTeamSize: 4,
+  facultyCoordinator: {
+    id: "faculty_coordinator",
+    role: "FACULTY COORDINATOR",
+    name: "Mrs. SUBHA S",
+    dept: "AP/IT",
+    icon: "GraduationCap",
+    color: "from-blue-600 via-indigo-600 to-purple-600",
+    glow: "rgba(99, 102, 241, 0.4)",
+    tag: "Faculty Advisor"
+  },
   clubMembers: [
     { id: "president", role: "PRESIDENT", name: "THIRUKUMARAN P S", dept: "IT DEPT", icon: "Crown", color: "from-amber-400 via-yellow-500 to-amber-600", glow: "rgba(245, 158, 11, 0.4)", tag: "Executive Leader" },
     { id: "vice_president", role: "VICE-PRESIDENT", name: "DHANYA R", dept: "CSE DEPT", icon: "Award", color: "from-purple-400 via-indigo-500 to-purple-600", glow: "rgba(168, 85, 247, 0.4)", tag: "Operations Lead" },
@@ -17,14 +27,14 @@ export const EVENT_CONFIG = {
     { id: "treasurer", role: "TREASURER", name: "SENTHIL BALAJI S", dept: "AI&ML DEPT", icon: "Coins", color: "from-emerald-400 via-teal-500 to-emerald-600", glow: "rgba(16, 185, 129, 0.4)", tag: "Finance & Accounts" }
   ],
   tracks: [
-    { id: "fullstack_web", name: "Full-Stack Web Development", icon: "Globe", desc: "Build responsive, high-performance web applications and modern portals to solve real-time problems." },
-    { id: "ai_web", name: "AI-Powered Web Apps", icon: "Cpu", desc: "Integrate intelligent AI models, chatbots, and predictive tools into websites to address real-world challenges." },
-    { id: "portal_web", name: "Enterprise & Portal Web Systems", icon: "Smartphone", desc: "Design scalable web portals, management dashboards, and digital platforms to streamline real-time services." },
-    { id: "security_web", name: "Web Security & Data Portals", icon: "ShieldAlert", desc: "Develop secure web applications, encrypted data portals, and web security tools for safe online interactions." },
-    { id: "social_web", name: "Social Impact Web Solutions", icon: "HeartHandshake", desc: "Create accessible web platforms and community web portals designed to solve real-time societal problems." }
+    { id: "cross_platform_mobile", name: "Cross-Platform Mobile Apps", icon: "Smartphone", desc: "Build high-performance Flutter, React Native, or Native mobile applications to solve real-time daily utility & urban problems." },
+    { id: "ai_mobile", name: "AI-Powered Mobile Solutions", icon: "Cpu", desc: "Integrate smart ML models, on-device AI, and intelligent chatbots into mobile apps for real-time decision making." },
+    { id: "utility_mobile", name: "Real-Time Utility & Smart City Apps", icon: "Globe", desc: "Develop location-aware, live tracking, and real-time emergency service mobile applications for community impact." },
+    { id: "security_mobile", name: "Mobile Security & Data Privacy", icon: "ShieldAlert", desc: "Design encrypted mobile wallets, secure authentication tools, and data privacy solutions for mobile users." },
+    { id: "sdg_mobile", name: "Social Impact & SDG Mobile Apps", icon: "HeartHandshake", desc: "Create accessible, offline-first mobile applications targeted at achieving UN Sustainable Development Goals." }
   ],
   timeline: [
-    { phase: "01", title: "REGISTRATION", date: "Aug 08 - Aug 22", desc: "Form your team of 2-3 members and register online through this platform." },
+    { phase: "01", title: "REGISTRATION", date: "Aug 08 - Aug 22", desc: "Form your team of 3-4 members and register online through this platform." },
     { phase: "02", title: "TEAM FORMATION", date: "Aug 18 - Aug 20", desc: "Finalize roles, brainstorm ideas, and set up your development workspace templates." },
     { phase: "03", title: "IDEA SUBMISSION", date: "Aug 21", desc: "Submit a brief 1-page proposal and wireframe design of your planned hack project." },
     { phase: "04", title: "HACKATHON MAIN EVENT", date: "Aug 22", desc: "5-hour sprint. Build, break, refactor, and finalize your prototype at the college venue." },
@@ -41,7 +51,7 @@ export const EVENT_CONFIG = {
     { q: "Can we use AI tools?", a: "Yes! Utilizing AI tools like GitHub Copilot, ChatGPT, or Cursor to accelerate your coding is allowed and encouraged." },
     { q: "How will projects be judged?", a: "Judging will be based on Innovation (30%), Execution & Technical Difficulty (30%), UX/UI Design (20%), and Pitch/Presentation (20%)." },
     { q: "What should we submit?", a: "You will submit a working GitHub repository link and a short demo video of your application at the end of the hackathon." },
-    { q: "When does registration close?", a: "Registration closes strictly on August 22, 2026 at 11:59 PM IST (or when 20 teams registered limit is reached)." }
+    { q: "When does registration close?", a: "Registration closes strictly on August 22, 2026 at 11:59 PM IST." }
   ],
   rules: [
     { title: "Team Integrity", detail: "All team members must be registered. Sharing accounts or combining projects from non-registered students is prohibited." },
@@ -52,7 +62,6 @@ export const EVENT_CONFIG = {
   ],
   stats: [
     { value: 5, label: "HACKATHON HOURS", suffix: "H" },
-    { value: 20, label: "TOTAL TEAMS", suffix: "" },
     { value: 0, label: "TEAMS REGISTERED", suffix: "" }
   ] as Array<{ value: number; label: string; suffix?: string; prefix?: string }>,
   contact: {

@@ -241,39 +241,46 @@ function getPBRTextures() {
 ───────────────────────────────────────────────────────── */
 const SECTIONS = [
   {
-    range: [0, 0.14],    name: 'hero',
+    range: [0.00, 0.12], name: 'hero',
     explosion: 0.00, rotY: 0.25, rotX: 0.05,
     posX: 2.3, posY: 0.1, scale: 1.00, glow: '#8b5cf6',
+    wirelessCharging: 0.0, chargerExplosion: 0.0, chargerAttach: 0.0,
   },
   {
-    range: [0.14, 0.28], name: 'stats',
-    explosion: 0.25, rotY: 1.05, rotX: 0.14,
-    posX: 1.2, posY: 0.0, scale: 0.98, glow: '#a855f7',
+    range: [0.12, 0.25], name: 'stats',
+    explosion: 0.65, rotY: 1.85, rotX: 0.25,
+    posX: 1.2, posY: 0.0, scale: 1.05, glow: '#a855f7',
+    wirelessCharging: 0.0, chargerExplosion: 0.0, chargerAttach: 0.0,
   },
   {
-    range: [0.28, 0.42], name: 'about',
-    explosion: 0.78, rotY: 2.15, rotX: -0.15,
-    posX: 0.0, posY: 0.0, scale: 1.05, glow: '#c084fc',
+    range: [0.25, 0.38], name: 'about',
+    explosion: 1.00, rotY: 3.45, rotX: -0.18,
+    posX: 0.0, posY: 0.1, scale: 1.10, glow: '#c084fc',
+    wirelessCharging: 0.0, chargerExplosion: 0.0, chargerAttach: 0.0,
   },
   {
-    range: [0.42, 0.56], name: 'tracks',
-    explosion: 1.00, rotY: 3.35, rotX: 0.12,
-    posX: 0.0, posY: 0.0, scale: 1.02, glow: '#8b5cf6',
+    range: [0.38, 0.50], name: 'tracks',
+    explosion: 0.45, rotY: 5.10, rotX: 0.12,
+    posX: -0.8, posY: 0.0, scale: 1.02, glow: '#38bdf8',
+    wirelessCharging: 0.0, chargerExplosion: 0.0, chargerAttach: 0.0,
   },
   {
-    range: [0.56, 0.70], name: 'timeline',
-    explosion: 0.55, rotY: 4.65, rotX: -0.10,
-    posX: 0.0, posY: 0.0, scale: 1.02, glow: '#a855f7',
+    range: [0.50, 0.65], name: 'timeline',
+    explosion: 0.00, rotY: 6.28, rotX: 0.08,
+    posX: 0.0, posY: 0.0, scale: 1.00, glow: '#10b981',
+    wirelessCharging: 0.0, chargerExplosion: 0.0, chargerAttach: 0.0,
   },
   {
-    range: [0.70, 0.84], name: 'members',
-    explosion: 0.08, rotY: 5.75, rotX: 0.08,
-    posX: 0.0, posY: -0.1, scale: 1.08, glow: '#a855f7',
+    range: [0.65, 0.82], name: 'members',
+    explosion: 0.00, rotY: 2.85, rotX: 0.18,
+    posX: 1.0, posY: 0.0, scale: 1.02, glow: '#38bdf8',
+    wirelessCharging: 1.0, chargerExplosion: 1.00, chargerAttach: 0.0,
   },
   {
-    range: [0.84, 1.00], name: 'register',
-    explosion: 0.00, rotY: 6.28, rotX: 0.00,
-    posX: 0.0, posY: 0.0, scale: 1.20, glow: '#a855f7',
+    range: [0.82, 1.00], name: 'faq',
+    explosion: 0.00, rotY: 2.85, rotX: 0.12,
+    posX: 0.0, posY: -0.10, scale: 1.08, glow: '#10b981',
+    wirelessCharging: 1.0, chargerExplosion: 0.00, chargerAttach: 1.0,
   },
 ];
 
@@ -313,6 +320,308 @@ function Particles() {
 }
 
 /* ─────────────────────────────────────────────────────────
+   AUTHENTIC 3D APPLE MAGSAFE CHARGER & TEARDOWN ANIMATION
+───────────────────────────────────────────────────────── */
+function WirelessCharger({
+  chargingAmount,
+  explosionAmount = 0,
+  attachAmount = 0,
+  phonePos = [0, 0, 0],
+  phoneRot = [0, 0, 0],
+}: {
+  chargingAmount: number;
+  explosionAmount?: number;
+  attachAmount?: number;
+  phonePos?: [number, number, number];
+  phoneRot?: [number, number, number];
+}) {
+  const padRef = useRef<THREE.Group>(null);
+  const ringMatRef = useRef<THREE.MeshStandardMaterial>(null);
+  const pulseRing1 = useRef<THREE.Mesh>(null);
+  const pulseRing2 = useRef<THREE.Mesh>(null);
+  const pulseRing3 = useRef<THREE.Mesh>(null);
+
+  // 16 segmented NdFeB magnets array
+  const magnetPositions = useMemo(() => {
+    const arr: [number, number, number][] = [];
+    const count = 16;
+    const radius = 0.85;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      arr.push([Math.cos(angle) * radius, 0, Math.sin(angle) * radius]);
+    }
+    return arr;
+  }, []);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (padRef.current) {
+      // 1. Compute Attached World Position on back glass panel
+      const rotY = phoneRot[1];
+      const attachX = phonePos[0] - 0.20 * Math.sin(rotY);
+      const attachY = phonePos[1] - 0.10;
+      const attachZ = phonePos[2] - 0.20 * Math.cos(rotY);
+
+      // 2. Position Lerp: Left Side of Screen [-1.8, 0.0, 0.4] when exploded -> Snapped to phone back glass on attach
+      const targetX = THREE.MathUtils.lerp(-1.8, attachX, attachAmount);
+      const targetY = THREE.MathUtils.lerp(0.0,  attachY, attachAmount);
+      const targetZ = THREE.MathUtils.lerp(0.4,  attachZ, attachAmount);
+
+      padRef.current.position.set(targetX, targetY, targetZ);
+
+      // 3. Rotation Lerp: Upright Vertical facing viewer (0.0) when exploded -> Match Phone Rotation on attach
+      const targetRotX = THREE.MathUtils.lerp(0.0, phoneRot[0], attachAmount);
+      const targetRotY = THREE.MathUtils.lerp(0.0, rotY, attachAmount);
+
+      padRef.current.rotation.set(targetRotX, targetRotY, 0);
+      padRef.current.scale.setScalar(chargingAmount * (0.95 + attachAmount * 0.05));
+    }
+
+    if (ringMatRef.current) {
+      ringMatRef.current.emissiveIntensity = 0.8 + Math.sin(t * 6) * 0.4;
+      ringMatRef.current.opacity = Math.min(chargingAmount * 0.98, 0.98);
+    }
+
+    // Radial Blue/Cyan Energy Wave Rays (active when attached)
+    const rayAlpha = attachAmount * chargingAmount;
+    if (pulseRing1.current) {
+      const p1 = (t * 0.75) % 1;
+      pulseRing1.current.scale.set(1 + p1 * 0.8, 1 + p1 * 0.8, 1);
+      pulseRing1.current.position.z = -p1 * 0.35;
+      (pulseRing1.current.material as THREE.MeshBasicMaterial).opacity = (1 - p1) * rayAlpha * 0.85;
+    }
+    if (pulseRing2.current) {
+      const p2 = (t * 0.75 + 0.33) % 1;
+      pulseRing2.current.scale.set(1 + p2 * 0.8, 1 + p2 * 0.8, 1);
+      pulseRing2.current.position.z = -p2 * 0.35;
+      (pulseRing2.current.material as THREE.MeshBasicMaterial).opacity = (1 - p2) * rayAlpha * 0.85;
+    }
+    if (pulseRing3.current) {
+      const p3 = (t * 0.75 + 0.66) % 1;
+      pulseRing3.current.scale.set(1 + p3 * 0.7, 1 + p3 * 0.7, 1);
+      pulseRing3.current.position.z = -p3 * 0.35;
+      (pulseRing3.current.material as THREE.MeshBasicMaterial).opacity = (1 - p3) * rayAlpha * 0.85;
+    }
+  });
+
+  const ef = explosionAmount; // 1.0 when exploded (separated vertically on left side), 0.0 when gathered/assembled
+
+  return (
+    <group ref={padRef} position={[-1.8, 0, 0.4]}>
+      {/* 1. Aluminum Housing (Rear Shell) & USB Cable (Top of Vertical Stack) */}
+      <group position={[0, ef * 1.5, -ef * 0.4]}>
+        <mesh castShadow receiveShadow>
+          <cylinderGeometry args={[1.25, 1.25, 0.13, 64]} rotation-x={Math.PI / 2} />
+          <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.18} transparent opacity={chargingAmount} />
+        </mesh>
+
+        {/* Engraved Back Face: Apple Logo & MagSafe Branding */}
+        <group position={[0, 0, -0.068]} rotation-y={Math.PI}>
+          <mesh position={[0, 0.05, 0.002]}>
+            <circleGeometry args={[0.22, 32]} />
+            <meshStandardMaterial color="#64748b" metalness={0.9} roughness={0.1} transparent opacity={chargingAmount} />
+          </mesh>
+          <mesh position={[0, 0, 0.002]}>
+            <torusGeometry args={[0.65, 0.015, 16, 48]} />
+            <meshStandardMaterial color="#94a3b8" metalness={0.8} roughness={0.3} transparent opacity={chargingAmount * 0.6} />
+          </mesh>
+        </group>
+
+        {/* Attached USB-C Power Cable */}
+        <group position={[0, -1.25, 0]}>
+          <mesh position={[0, 0.05, 0]}>
+            <cylinderGeometry args={[0.07, 0.07, 0.28, 16]} />
+            <meshStandardMaterial color="#e2e8f0" roughness={0.3} transparent opacity={chargingAmount} />
+          </mesh>
+          <mesh position={[0, -0.65, -0.1]}>
+            <cylinderGeometry args={[0.045, 0.045, 1.2, 16]} rotation-x={0.2} />
+            <meshStandardMaterial color="#ffffff" roughness={0.35} transparent opacity={chargingAmount} />
+          </mesh>
+          <group position={[0, -1.4, -0.22]}>
+            <mesh>
+              <boxGeometry args={[0.18, 0.45, 0.09]} />
+              <meshStandardMaterial color="#f1f5f9" roughness={0.2} transparent opacity={chargingAmount} />
+            </mesh>
+            <mesh position={[0, -0.28, 0]}>
+              <boxGeometry args={[0.12, 0.15, 0.04]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.15} transparent opacity={chargingAmount} />
+            </mesh>
+          </group>
+        </group>
+      </group>
+
+      {/* 2. Heat Shield Disc Plate */}
+      <group position={[0, ef * 0.9, -ef * 0.24]}>
+        <mesh castShadow receiveShadow>
+          <cylinderGeometry args={[1.22, 1.22, 0.02, 64]} rotation-x={Math.PI / 2} />
+          <meshStandardMaterial color="#94a3b8" metalness={0.85} roughness={0.3} transparent opacity={chargingAmount * 0.9} />
+        </mesh>
+      </group>
+
+      {/* 3. Control Circuit Board (Power IC PCB) */}
+      <group position={[0, ef * 0.3, -ef * 0.08]}>
+        <mesh castShadow receiveShadow>
+          <cylinderGeometry args={[1.20, 1.20, 0.025, 64]} rotation-x={Math.PI / 2} />
+          <meshStandardMaterial color="#0f172a" metalness={0.5} roughness={0.4} emissive="#00ff66" emissiveIntensity={0.2} transparent opacity={chargingAmount * 0.95} />
+        </mesh>
+        {/* Microchips & Power IC */}
+        <mesh position={[0, 0, 0.015]}>
+          <boxGeometry args={[0.35, 0.35, 0.02]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.2} transparent opacity={chargingAmount} />
+        </mesh>
+      </group>
+
+      {/* 4. NdFeB Segmented Magnet Array Ring */}
+      <group position={[0, -ef * 0.3, ef * 0.08]}>
+        {magnetPositions.map(([x, y, z], i) => (
+          <mesh key={`mag-${i}`} position={[x, y, z]} rotation-x={Math.PI / 2}>
+            <boxGeometry args={[0.16, 0.22, 0.04]} />
+            <meshStandardMaterial color="#cbd5e1" metalness={0.96} roughness={0.15} transparent opacity={chargingAmount * 0.95} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* 5. Wireless Charging Copper Coil (Spiraling Copper Wire) */}
+      <group position={[0, -ef * 0.9, ef * 0.24]}>
+        {[0.4, 0.52, 0.64, 0.76].map((r, i) => (
+          <mesh key={`copper-${i}`} position={[0, 0, 0]}>
+            <torusGeometry args={[r, 0.035, 16, 48]} />
+            <meshStandardMaterial
+              color="#d97706"
+              metalness={0.85}
+              roughness={0.25}
+              emissive="#b45309"
+              emissiveIntensity={0.4}
+              transparent
+              opacity={chargingAmount * 0.95}
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* 6. Protective Glass / PC Front Pad Face & MagSafe LED Ring (Bottom of Vertical Stack) */}
+      <group position={[0, -ef * 1.5, ef * 0.4]}>
+        <mesh position={[0, 0, 0.068]}>
+          <cylinderGeometry args={[1.16, 1.16, 0.015, 64]} rotation-x={Math.PI / 2} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.4} transparent opacity={chargingAmount} />
+        </mesh>
+
+        <mesh position={[0, 0, 0.076]}>
+          <torusGeometry args={[1.12, 0.035, 16, 64]} />
+          <meshStandardMaterial
+            ref={ringMatRef}
+            color="#10b981"
+            emissive="#34d399"
+            emissiveIntensity={0.9}
+            transparent
+            opacity={chargingAmount}
+          />
+        </mesh>
+      </group>
+
+      {/* 7. Radial Cyan/Blue Energy Field Rays (Active on Attachment) */}
+      <mesh ref={pulseRing1} position={[0, 0, -0.1]}>
+        <torusGeometry args={[1.35, 0.04, 16, 64]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <mesh ref={pulseRing2} position={[0, 0, -0.1]}>
+        <torusGeometry args={[1.35, 0.04, 16, 64]} />
+        <meshBasicMaterial color="#06b6d4" transparent opacity={0} depthWrite={false} />
+      </mesh>
+      <mesh ref={pulseRing3} position={[0, 0, -0.1]}>
+        <torusGeometry args={[1.35, 0.04, 16, 64]} />
+        <meshBasicMaterial color="#10b981" transparent opacity={0} depthWrite={false} />
+      </mesh>
+    </group>
+  );
+}
+
+function WirelessParticles({ chargingAmount }: { chargingAmount: number }) {
+  const ref = useRef<THREE.Points>(null);
+  const positions = useMemo(() => {
+    const arr = new Float32Array(60 * 3);
+    for (let i = 0; i < 60; i++) {
+      const r = Math.random() * 1.1;
+      const theta = Math.random() * Math.PI * 2;
+      arr[i * 3]     = Math.cos(theta) * r;
+      arr[i * 3 + 1] = -2.0 + Math.random() * 2.2;
+      arr[i * 3 + 2] = Math.sin(theta) * r;
+    }
+    return arr;
+  }, []);
+
+  useFrame(() => {
+    if (ref.current && chargingAmount > 0.02) {
+      const pos = ref.current.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < 60; i++) {
+        pos[i * 3 + 1] += 0.025;
+        if (pos[i * 3 + 1] > 0.6) {
+          pos[i * 3 + 1] = -2.0;
+        }
+      }
+      ref.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+
+  if (chargingAmount <= 0.02) return null;
+
+  return (
+    <Points ref={ref} positions={positions} stride={3} frustumCulled={false}>
+      <PointMaterial transparent color="#34d399" size={0.07} sizeAttenuation depthWrite={false} opacity={chargingAmount * 0.85} />
+    </Points>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
+   AUTHENTIC MAGSAFE ON-SCREEN CHARGING WIDGET (⚡ 75% CHARGED)
+───────────────────────────────────────────────────────── */
+function MagSafeScreenWidget({ chargingAmount }: { chargingAmount: number }) {
+  const ringRef = useRef<THREE.Mesh>(null);
+
+  useFrame(({ clock }) => {
+    if (ringRef.current) {
+      ringRef.current.rotation.z = clock.elapsedTime * 0.8;
+    }
+  });
+
+  if (chargingAmount <= 0.05) return null;
+
+  return (
+    <group position={[0, 0.2, 0.102]} scale={chargingAmount * 0.85}>
+      {/* Outer Glowing Green MagSafe Ring */}
+      <mesh ref={ringRef}>
+        <torusGeometry args={[0.65, 0.045, 16, 64]} />
+        <meshStandardMaterial
+          color="#10b981"
+          emissive="#34d399"
+          emissiveIntensity={1.4}
+          transparent
+          opacity={chargingAmount * 0.95}
+        />
+      </mesh>
+
+      {/* Inner Dark Glass Circle Backing */}
+      <mesh>
+        <circleGeometry args={[0.60, 48]} />
+        <meshStandardMaterial
+          color="#022c22"
+          emissive="#064e3b"
+          emissiveIntensity={0.8}
+          transparent
+          opacity={chargingAmount * 0.88}
+        />
+      </mesh>
+
+      {/* Center Emissive Lightning Bolt Symbol ⚡ */}
+      <mesh position={[0, 0.06, 0.01]} rotation-z={0.25}>
+        <boxGeometry args={[0.15, 0.32, 0.01]} />
+        <meshStandardMaterial color="#ffffff" emissive="#34d399" emissiveIntensity={1.8} />
+      </mesh>
+    </group>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────
    IPHONE 17 PRO NATURAL TITANIUM MODEL (RIGHT-SIDE LOAD + SILKY 60 FPS ANTI-LAG)
 ───────────────────────────────────────────────────────── */
 function PhoneGroup({
@@ -334,6 +643,7 @@ function PhoneGroup({
 
   const screenLight   = useRef<THREE.PointLight>(null);
   const rimLight      = useRef<THREE.PointLight>(null);
+  const chargingLight = useRef<THREE.PointLight>(null);
 
   const internalMats = useRef<THREE.MeshStandardMaterial[]>([]);
 
@@ -355,6 +665,9 @@ function PhoneGroup({
     posY: 0.1,
     scale: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.68 : 1.0,
     explosion: 0,
+    wirelessCharging: 0,
+    chargerExplosion: 0,
+    chargerAttach: 0,
     glowColor: new THREE.Color('#8b5cf6'),
   });
   const targetGlow = useRef(new THREE.Color('#8b5cf6'));
@@ -378,15 +691,19 @@ function PhoneGroup({
 
     /* Silky-smooth 60 FPS anti-lag frame interpolation */
     const L = THREE.MathUtils.damp(0, 1, 14, smoothDelta);
-    ls.current.rotY      = THREE.MathUtils.lerp(ls.current.rotY,      target.rotY + mx,  L);
-    ls.current.rotX      = THREE.MathUtils.lerp(ls.current.rotX,      target.rotX - my,  L);
-    ls.current.posX      = THREE.MathUtils.lerp(ls.current.posX,      targetX,           L);
-    ls.current.posY      = THREE.MathUtils.lerp(ls.current.posY,      targetY,           L);
-    ls.current.scale     = THREE.MathUtils.lerp(ls.current.scale,     targetScale,       L);
-    ls.current.explosion = THREE.MathUtils.lerp(ls.current.explosion, target.explosion,  L * 0.95);
+    ls.current.rotY             = THREE.MathUtils.lerp(ls.current.rotY,             target.rotY + mx,           L);
+    ls.current.rotX             = THREE.MathUtils.lerp(ls.current.rotX,             target.rotX - my,           L);
+    ls.current.posX             = THREE.MathUtils.lerp(ls.current.posX,             targetX,                    L);
+    ls.current.posY             = THREE.MathUtils.lerp(ls.current.posY,             targetY,                    L);
+    ls.current.scale            = THREE.MathUtils.lerp(ls.current.scale,            targetScale,                L);
+    ls.current.explosion        = THREE.MathUtils.lerp(ls.current.explosion,        target.explosion,           L * 0.95);
+    ls.current.wirelessCharging = THREE.MathUtils.lerp(ls.current.wirelessCharging, target.wirelessCharging ?? 0, L * 0.95);
+    ls.current.chargerExplosion = THREE.MathUtils.lerp(ls.current.chargerExplosion, target.chargerExplosion ?? 0, L * 0.95);
+    ls.current.chargerAttach    = THREE.MathUtils.lerp(ls.current.chargerAttach,    target.chargerAttach ?? 0,    L * 0.95);
     ls.current.glowColor.lerp(targetGlow.current, 0.08);
 
     const ef = ls.current.explosion;
+    const wc = ls.current.wirelessCharging;
     const assembled = 1 - ef;
 
     /* ── Main Phone Group Rotation & Float ── */
@@ -451,6 +768,9 @@ function PhoneGroup({
       rimLight.current.color.copy(ls.current.glowColor);
       rimLight.current.intensity = 0.6 + ef * 0.8;
     }
+    if (chargingLight.current) {
+      chargingLight.current.intensity = wc * 3.5;
+    }
   });
 
   const imat = (mat: THREE.MeshStandardMaterial | null) => {
@@ -458,21 +778,33 @@ function PhoneGroup({
   };
 
   return (
-    <group ref={groupRef}>
-
-      {/* ── Grounding Contact Shadow ── */}
-      <ContactShadows
-        position={[0, -2.45, 0]}
-        opacity={0.65}
-        scale={8.5}
-        blur={2.0}
-        far={3.0}
-        color="#000000"
+    <>
+      {/* ── 3D Wireless Charging Pad & MagSafe Energy Aura (World Coordinates) ── */}
+      <WirelessCharger
+        chargingAmount={ls.current.wirelessCharging}
+        explosionAmount={ls.current.chargerExplosion}
+        attachAmount={ls.current.chargerAttach}
+        phonePos={[ls.current.posX, ls.current.posY, 0]}
+        phoneRot={[ls.current.rotX, ls.current.rotY, 0]}
       />
+      <WirelessParticles chargingAmount={ls.current.wirelessCharging} />
+
+      <group ref={groupRef}>
+
+        {/* ── Grounding Contact Shadow ── */}
+        <ContactShadows
+          position={[0, -2.45, 0]}
+          opacity={0.65}
+          scale={8.5}
+          blur={2.0}
+          far={3.0}
+          color="#000000"
+        />
 
       {/* ── Dynamic Lights ── */}
       <pointLight ref={screenLight} position={[0, 0, 1.3]} intensity={1.6} distance={8} />
       <pointLight ref={rimLight}    position={[0, 2.2, -2.2]} intensity={0.6} distance={7} color="#a855f7" />
+      <pointLight ref={chargingLight} position={[0, -1.8, 0]} intensity={0} distance={6} color="#10b981" />
 
       {/* ══════════════════════════════════
           FRONT VIEW (4K DIRECT CANVAS MAPPED OLED DISPLAY)
@@ -489,6 +821,9 @@ function PhoneGroup({
             emissiveIntensity={0.18}
           />
         </mesh>
+
+        {/* MagSafe Charging Ring & Lightning Bolt On-Screen Widget */}
+        <MagSafeScreenWidget chargingAmount={ls.current.chargerAttach} />
 
         {/* Ceramic Shield Glass Reflection Layer */}
         <mesh position={[0, 0.1, 0.096]}>
@@ -804,6 +1139,7 @@ function PhoneGroup({
       </group>
 
     </group>
+    </>
   );
 }
 

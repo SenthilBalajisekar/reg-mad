@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import { 
   Smartphone, 
   Cpu, 
@@ -21,6 +21,7 @@ import {
   FileText,
   Megaphone,
   Coins,
+  GraduationCap,
   User,
   Edit3,
   Check
@@ -35,33 +36,12 @@ import StatCounter from "@/components/StatCounter";
 import AccordionItem from "@/components/AccordionItem";
 import { EVENT_CONFIG } from "@/config/event";
 
-// 3D phone — dynamic import (no SSR, needs WebGL)
-const PhoneScene = dynamic(() => import("@/components/Phone3D/PhoneScene"), { ssr: false });
+// 3D Magnetic Charger background animation — dynamic import (no SSR)
+const ChargerScene = dynamic(() => import("@/components/Charger3D/ChargerScene"), { ssr: false });
 
 const iconMap: Record<string, React.ComponentType<any>> = {
-  Smartphone, Cpu, Globe, ShieldAlert, HeartHandshake, Award, Crown, FileText, Megaphone, Coins
+  Smartphone, Cpu, Globe, ShieldAlert, HeartHandshake, Award, Crown, FileText, Megaphone, Coins, GraduationCap
 };
-
-// Section color palettes — deep space cyber gradients for obsidian background
-const SECTION_GRADIENTS = [
-  // Hero: deep space purple
-  { bg: "linear-gradient(180deg, #09051d 0%, #150a36 50%, #08041a 100%)" },
-  // Stats: midnight navy
-  { bg: "linear-gradient(180deg, #060412 0%, #0a0820 100%)" },
-  // About: obsidian violet
-  { bg: "linear-gradient(180deg, #0a061e 0%, #170d3d 50%, #0b0722 100%)" },
-  // Tracks: deep cyan space
-  { bg: "linear-gradient(180deg, #04091a 0%, #081230 50%, #050a1d 100%)" },
-  // Timeline: deep periwinkle indigo
-  { bg: "linear-gradient(180deg, #060924 0%, #0d1240 50%, #070928 100%)" },
-  // Members: deep neon violet magenta space
-  { bg: "linear-gradient(180deg, #18082e 0%, #2e0d4f 50%, #150628 100%)" },
-  // Rules/FAQ: deep violet space
-  { bg: "linear-gradient(180deg, #0f0a28 0%, #1a0f3d 50%, #09051b 100%)" }
-];
-
-
-
 
 export default function Home() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
@@ -75,6 +55,8 @@ export default function Home() {
     participantsCount: 0,
     isLoaded: false
   });
+
+  const { scrollYProgress } = useScroll();
 
   // Load saved club member names from localStorage
   useEffect(() => {
@@ -115,89 +97,6 @@ export default function Home() {
     fetchRealTimeStats();
   }, []);
 
-  // Mouse motion values for 3D phone parallax
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => {
-      mouseX.set((e.clientX / window.innerWidth  - 0.5) * 2);
-      mouseY.set((e.clientY / window.innerHeight - 0.5) * 2);
-    };
-    const handleTouch = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        mouseX.set((e.touches[0].clientX / window.innerWidth  - 0.5) * 2);
-        mouseY.set((e.touches[0].clientY / window.innerHeight - 0.5) * 2);
-      }
-    };
-    window.addEventListener('mousemove', handleMouse);
-    window.addEventListener('touchmove', handleTouch, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', handleMouse);
-      window.removeEventListener('touchmove', handleTouch);
-    };
-  }, [mouseX, mouseY]);
-
-
-  // Framer scroll progress across the full page
-  // Track global window scroll — avoids the hydration ref issue with useScroll+target
-  const { scrollYProgress } = useScroll();
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 40, damping: 20 });
-
-  // Background gradient color transitions mapped to scroll
-  const bgOpacity0 = useTransform(smoothProgress, [0, 0.14, 0.28], [1, 0, 0]);
-  const bgOpacity1 = useTransform(smoothProgress, [0.05, 0.14, 0.22, 0.28], [0, 1, 1, 0]);
-  const bgOpacity2 = useTransform(smoothProgress, [0.2, 0.28, 0.36, 0.42], [0, 1, 1, 0]);
-  const bgOpacity3 = useTransform(smoothProgress, [0.35, 0.43, 0.52, 0.58], [0, 1, 1, 0]);
-  const bgOpacity4 = useTransform(smoothProgress, [0.50, 0.58, 0.67, 0.73], [0, 1, 1, 0]);
-  const bgOpacity5 = useTransform(smoothProgress, [0.65, 0.73, 0.82, 0.88], [0, 1, 1, 0]);
-  const bgOpacity6 = useTransform(smoothProgress, [0.80, 0.88, 1.0], [0, 1, 1]);
-
-  const bgOpacities = [bgOpacity0, bgOpacity1, bgOpacity2, bgOpacity3, bgOpacity4, bgOpacity5, bgOpacity6];
-
-  // Animated floating orb positions driven by scroll
-  const orb1Y = useTransform(smoothProgress, [0, 1], ["0%", "-60%"]);
-  const orb2Y = useTransform(smoothProgress, [0, 1], ["0%", "40%"]);
-  const orb3X = useTransform(smoothProgress, [0, 1], ["0%", "30%"]);
-  const orb1Scale = useTransform(smoothProgress, [0, 0.4, 0.7, 1], [1, 1.4, 0.9, 1.2]);
-  const orb2Scale = useTransform(smoothProgress, [0, 0.3, 0.6, 1], [0.8, 1.3, 1.1, 0.9]);
-
-  // Grid opacity rhythmically pulses on scroll
-  const gridOpacity = useTransform(smoothProgress, [0, 0.2, 0.4, 0.6, 0.8, 1], [0.35, 0.2, 0.4, 0.15, 0.35, 0.25]);
-
-  // Orb color transforms — blue, purple, cyan, magenta space palette
-  const orb1BgColor = useTransform(
-    smoothProgress,
-    [0, 0.25, 0.5, 0.75, 1],
-    [
-      "rgba(139,92,246,0.22)",
-      "rgba(59,130,246,0.20)",
-      "rgba(168,85,247,0.18)",
-      "rgba(236,72,153,0.18)",
-      "rgba(99,102,241,0.20)"
-    ]
-  );
-  const orb2BgColor = useTransform(
-    smoothProgress,
-    [0, 0.3, 0.6, 1],
-    [
-      "rgba(59,130,246,0.18)",
-      "rgba(168,85,247,0.20)",
-      "rgba(219,39,119,0.18)",
-      "rgba(147,51,234,0.18)"
-    ]
-  );
-  const orb3BgColor = useTransform(
-    smoothProgress,
-    [0, 0.4, 0.7, 1],
-    [
-      "rgba(99,102,241,0.18)",
-      "rgba(56,189,248,0.18)",
-      "rgba(236,72,153,0.18)",
-      "rgba(124,58,237,0.18)"
-    ]
-  );
-
   const pillars = [
     { title: "INNOVATE", desc: "Transform rough concepts into meaningful solutions targeting modern human roadblocks.", icon: Sparkles, color: "from-cyan-500/20 to-blue-500/5", borderGlow: "rgba(0,240,255,0.2)" },
     { title: "BUILD", desc: "Turn drafts and ideas into real-world working technical prototypes with precision.", icon: Code, color: "from-purple-500/20 to-indigo-500/5", borderGlow: "rgba(139,92,246,0.2)" },
@@ -210,80 +109,12 @@ export default function Home() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#060412] text-white selection:bg-violet-600 selection:text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-white text-slate-900 selection:bg-indigo-500 selection:text-white overflow-x-hidden">
 
       {/* ═══════════════════════════════════════════
-          SCROLL-DRIVEN BACKGROUND — DEEP CYBER DARK MODE
+          3D MAGNETIC CHARGER SCROLL ANIMATION
       ═══════════════════════════════════════════ */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        {/* Dark Obsidian Base */}
-        <div className="absolute inset-0 bg-[#060412]" />
-
-        {/* Gradient background layers — one per section */}
-        {SECTION_GRADIENTS.map((theme, i) => (
-          <motion.div
-            key={i}
-            className="absolute inset-0"
-            style={{
-              background: theme.bg,
-              opacity: bgOpacities[i]
-            }}
-          />
-        ))}
-
-        {/* Animated glowing ORB 1 — large, top-left, drifts upward on scroll */}
-        <motion.div
-          className="absolute rounded-full blur-[130px] pointer-events-none"
-          style={{
-            width: 600,
-            height: 600,
-            top: "5%",
-            left: "-10%",
-            y: orb1Y,
-            scale: orb1Scale,
-            background: orb1BgColor
-          }}
-        />
-
-        {/* Animated glowing ORB 2 — medium, bottom-right, drifts down */}
-        <motion.div
-          className="absolute rounded-full blur-[100px] pointer-events-none"
-          style={{
-            width: 450,
-            height: 450,
-            bottom: "10%",
-            right: "-5%",
-            y: orb2Y,
-            scale: orb2Scale,
-            background: orb2BgColor
-          }}
-        />
-
-        {/* Animated glowing ORB 3 — small, center, drifts sideways */}
-        <motion.div
-          className="absolute rounded-full blur-[90px] pointer-events-none"
-          style={{
-            width: 280,
-            height: 280,
-            top: "40%",
-            left: "35%",
-            x: orb3X,
-            background: orb3BgColor
-          }}
-        />
-
-        {/* Scroll-driven animated grid — opacity pulses per section */}
-        <motion.div
-          className="absolute inset-0 bg-grid-pattern animate-grid-move"
-          style={{ opacity: gridOpacity }}
-        />
-
-        {/* Very faint inner shadow vignette */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_50%,_rgba(0,0,0,0.04)_100%)]" />
-      </div>
-
-      {/* 3D phone — fixed background animation layer for both desktop & mobile screens */}
-      <PhoneScene scrollProgress={smoothProgress} mouseX={mouseX} mouseY={mouseY} />
+      <ChargerScene scrollProgress={scrollYProgress} />
 
       {/* Cursor glow tracker */}
       <CustomCursor />
@@ -292,44 +123,57 @@ export default function Home() {
       <Navbar />
 
       {/* ═══════════════ HERO SECTION ═══════════════ */}
-      {/* Responsive layout: centered on mobile, left-aligned on desktop */}
       <section id="home" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-24 pb-16 overflow-hidden z-10">
 
-        <div className="max-w-xl flex flex-col items-center text-center md:items-start md:text-left gap-5 md:gap-6 mt-6 md:mt-12 mx-auto md:ml-8 lg:ml-20">
+        <div className="max-w-4xl flex flex-col items-center text-center gap-5 md:gap-6 mt-6 md:mt-12 mx-auto">
           
-          <motion.div
+          <motion.h2
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-violet-500/40 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-violet-300 bg-violet-950/60 shadow-md"
+            className="text-2xl sm:text-4xl md:text-5xl font-black font-orbitron tracking-[0.2em] md:tracking-[0.25em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 drop-shadow-sm"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            {EVENT_CONFIG.collegeName} Presents
+            APP RADIX - 26
+          </motion.h2>
+
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-300 text-[10px] md:text-xs font-mono uppercase tracking-[0.2em] text-slate-800 bg-white/90 backdrop-blur-md shadow-md"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping" />
+            {EVENT_CONFIG.collegeName ? `${EVENT_CONFIG.collegeName} PRESENTS` : "PRESENTS"}
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
-            className="text-3xl sm:text-5xl md:text-7xl font-black font-orbitron tracking-tight leading-tight md:leading-none text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-200 to-purple-300 drop-shadow-[0_0_35px_rgba(168,85,247,0.4)]"
+            className="text-2xl sm:text-4xl md:text-6xl font-black font-orbitron tracking-tight leading-tight md:leading-none text-transparent bg-clip-text bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 drop-shadow-sm"
           >
-            HACK THE FUTURE
+            DREAM IT . CODE IT . LAUNCH IT
           </motion.h1>
 
-          <motion.h2
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-sm sm:text-lg md:text-2xl font-mono uppercase tracking-[0.2em] md:tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-violet-300 to-pink-400 font-bold"
+            className="flex flex-col items-center gap-1"
           >
-            {EVENT_CONFIG.tagline}
-          </motion.h2>
+            <h2 className="text-sm sm:text-lg md:text-2xl font-mono uppercase tracking-[0.2em] md:tracking-[0.4em] text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 font-bold">
+              {EVENT_CONFIG.tagline}
+            </h2>
+            <span className="text-xs sm:text-sm font-mono uppercase tracking-[0.3em] text-amber-600 font-extrabold">
+              ⚡ {EVENT_CONFIG.poweredBy} ⚡
+            </span>
+          </motion.div>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-xs md:text-sm text-slate-200 max-w-xl leading-relaxed font-sans glass-panel p-4 md:p-5 rounded-xl bg-slate-900/85 border border-slate-700/80 shadow-md"
+            className="text-xs md:text-sm text-slate-700 max-w-xl leading-relaxed font-sans p-4 md:p-5 rounded-xl bg-white/90 border border-slate-200 backdrop-blur-md shadow-lg"
           >
             Turn your ideas into real-world solutions. Team up, build something meaningful, and showcase your creativity at our college hackathon.
           </motion.p>
@@ -338,7 +182,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3.5 mt-2 md:mt-4 w-full"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3.5 mt-2 md:mt-4 w-full"
           >
             <Link
               href="/register"
@@ -348,7 +192,7 @@ export default function Home() {
             </Link>
             <a
               href="#about"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-white font-bold text-center border border-violet-500/50 bg-slate-900/85 hover:border-cyan-400 transition-all duration-300 shadow-md"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-slate-800 font-bold text-center border border-slate-300 bg-white hover:border-violet-500 transition-all duration-300 shadow-md"
             >
               EXPLORE HACKATHON ↓
             </a>
@@ -388,10 +232,9 @@ export default function Home() {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-300/60 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-300/40 to-transparent" />
 
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
           {[
             { value: 5, label: "HACKATHON HOURS", suffix: "H", prefix: "" },
-            { value: 20, label: "TOTAL TEAMS", suffix: "", prefix: "" },
             {
               value: realTimeStats.isLoaded ? realTimeStats.teamsCount : 0,
               label: "TEAMS REGISTERED",
@@ -408,7 +251,7 @@ export default function Home() {
               className="glossy-card p-6 md:p-8 rounded-2xl shadow-xl flex flex-col items-center justify-center gap-2 relative z-30 transition-all duration-300"
             >
               <StatCounter value={stat.value} suffix={stat.suffix} prefix={stat.prefix} />
-              <span className="text-xs md:text-sm font-mono tracking-[0.25em] text-cyan-300 font-extrabold uppercase mt-2">
+              <span className="text-xs md:text-sm font-mono tracking-[0.25em] text-blue-700 font-extrabold uppercase mt-2">
                 {stat.label}
               </span>
             </motion.div>
@@ -422,21 +265,21 @@ export default function Home() {
           <div className="text-center flex flex-col gap-3">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-blue-600 uppercase"
+              className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-600"
             >
               Discover the Event
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase"
+              className="text-2xl sm:text-4xl md:text-5xl font-black font-orbitron tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 uppercase"
             >
               WHAT IS THE HACKATHON?
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-base sm:text-lg md:text-xl text-white font-bold tracking-wide max-w-2xl leading-relaxed mx-auto font-sans glass-panel p-6 md:p-7 rounded-2xl bg-slate-900/90 backdrop-blur-xl border border-violet-500/40 shadow-2xl text-white"
+              className="text-base sm:text-lg md:text-xl font-bold tracking-wide max-w-2xl leading-relaxed mx-auto font-sans glass-panel p-6 md:p-7 rounded-2xl bg-white border border-slate-200 shadow-lg text-slate-800"
             >
-              To build the website based on the SDG goals. The Problem Statement will be given on the spot.
+              To build the mobile app based on the SDG goals. The Problem Statement will be given on the spot.
             </motion.p>
           </div>
 
@@ -451,14 +294,14 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ y: -8 }}
-                  className="glass-panel p-6 rounded-xl flex flex-col gap-4 border border-slate-200 bg-opacity-30 relative overflow-hidden group cursor-default"
+                  className="glass-panel p-6 rounded-xl flex flex-col gap-4 border border-slate-200 bg-white relative overflow-hidden group cursor-default shadow-md"
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${pillar.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                  <div className="w-12 h-12 rounded-lg bg-white/5 border border-slate-200 flex items-center justify-center text-blue-600 group-hover:text-white group-hover:bg-blue-600/20 transition-colors duration-300 relative z-10">
+                  <div className="w-12 h-12 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 group-hover:text-blue-700 transition-colors duration-300 relative z-10">
                     <Icon size={22} className="group-hover:scale-110 transition-transform duration-300" />
                   </div>
-                  <h3 className="font-orbitron text-sm font-bold tracking-wider text-white mt-2 relative z-10">{pillar.title}</h3>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans relative z-10">{pillar.desc}</p>
+                  <h3 className="font-orbitron text-sm font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 mt-2 relative z-10">{pillar.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed font-sans relative z-10">{pillar.desc}</p>
                 </motion.div>
               );
             })}
@@ -468,26 +311,23 @@ export default function Home() {
 
       {/* ═══════════════ TRACKS SECTION ═══════════════ */}
       <section id="tracks" className="relative py-24 px-6 z-10">
-        {/* Top/bottom teal accent lines */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-12">
           <div className="text-center flex flex-col gap-3">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-teal-600 uppercase"
+              className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600"
             >
               Challenge Categories
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase"
+              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 via-violet-600 to-pink-600 uppercase"
             >
               CHALLENGE TRACKS
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-xs md:text-sm text-white font-semibold max-w-xl leading-relaxed mx-auto font-sans glass-panel p-4 md:p-5 rounded-xl bg-slate-900/85 backdrop-blur-md border border-slate-700/80 shadow-lg text-white"
+              className="text-xs md:text-sm text-slate-700 font-semibold max-w-xl leading-relaxed mx-auto font-sans glass-panel p-4 md:p-5 rounded-xl bg-white border border-slate-200 shadow-md"
             >
               Choose a track that aligns with your tech passion and build a project that solves a critical problem in that domain.
             </motion.p>
@@ -504,16 +344,15 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.08 }}
                   whileHover={{ y: -5 }}
-                  className="glass-panel p-6 rounded-xl flex flex-col gap-4 border border-slate-200 group cursor-default relative overflow-hidden"
+                  className="glass-panel p-6 rounded-xl flex flex-col gap-4 border border-slate-200 bg-white group cursor-default relative overflow-hidden shadow-md"
                 >
-                  <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-400/20 transition-colors duration-500" />
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-md bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600 group-hover:border-violet-300 group-hover:text-violet-600 transition-all duration-300">
+                    <div className="w-10 h-10 rounded-md bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-600 transition-all duration-300">
                       <Icon size={18} />
                     </div>
-                    <h3 className="font-orbitron text-xs md:text-sm font-bold tracking-wider text-white uppercase">{track.name}</h3>
+                    <h3 className="font-orbitron text-xs md:text-sm font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 uppercase">{track.name}</h3>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans mt-2">{track.desc}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed font-sans mt-2">{track.desc}</p>
                 </motion.div>
               );
             })}
@@ -523,19 +362,17 @@ export default function Home() {
 
       {/* ═══════════════ TIMELINE SECTION ═══════════════ */}
       <section id="timeline" className="relative py-24 px-6 z-10 max-w-7xl mx-auto">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
-
         <div className="flex flex-col items-center gap-16">
           <div className="text-center flex flex-col gap-3">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-blue-600 uppercase"
+              className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
             >
               Event Milestones
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase"
+              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 via-pink-600 to-amber-500 uppercase drop-shadow-sm"
             >
               EVENT TIMELINE
             </motion.h2>
@@ -543,7 +380,7 @@ export default function Home() {
 
           {/* Desktop timeline */}
           <div className="hidden lg:grid grid-cols-6 gap-6 relative w-full pt-10">
-            <div className="absolute top-[82px] left-[8%] right-[8%] h-[2px] bg-gradient-to-r from-blue-400 via-violet-400 to-pink-400 opacity-40" />
+            <div className="absolute top-[82px] left-[8%] right-[8%] h-[2px] bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-amber-500 opacity-80" />
             {EVENT_CONFIG.timeline.map((item, i) => (
               <motion.div
                 key={item.phase}
@@ -553,18 +390,18 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="flex flex-col items-center text-center group"
               >
-                <span className="text-[10px] font-mono tracking-widest text-cyan-400 mb-2 font-bold group-hover:text-blue-400 transition-colors duration-200">{item.date}</span>
-                <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-violet-500/40 flex items-center justify-center mb-6 relative z-10 shadow-sm group-hover:border-cyan-400 group-hover:shadow-[0_0_12px_rgba(56,189,248,0.35)] transition-all duration-300">
-                  <span className="font-orbitron text-xs font-black text-white group-hover:text-cyan-300">{item.phase}</span>
+                <span className="text-[10px] font-mono tracking-widest mb-2 font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-600">{item.date}</span>
+                <div className="w-12 h-12 rounded-full bg-white border-2 border-violet-500 flex items-center justify-center mb-6 relative z-10 shadow-md group-hover:border-pink-500 group-hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all duration-300">
+                  <span className="font-orbitron text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">{item.phase}</span>
                 </div>
-                <h3 className="font-orbitron text-[11px] font-bold tracking-widest text-white mb-2 uppercase">{item.title}</h3>
-                <p className="text-[11px] text-slate-300 leading-relaxed font-sans px-2">{item.desc}</p>
+                <h3 className="font-orbitron text-[11px] md:text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 via-violet-800 to-pink-700 mb-2 uppercase">{item.title}</h3>
+                <p className="text-[11px] text-slate-600 leading-relaxed font-sans px-2">{item.desc}</p>
               </motion.div>
             ))}
           </div>
 
           {/* Mobile timeline */}
-          <div className="lg:hidden flex flex-col gap-10 relative w-full pl-6 md:pl-12 border-l border-violet-500/40">
+          <div className="lg:hidden flex flex-col gap-10 relative w-full pl-6 md:pl-12 border-l-2 border-gradient-to-b from-blue-500 via-purple-500 to-pink-500">
             {EVENT_CONFIG.timeline.map((item, i) => (
               <motion.div
                 key={item.phase}
@@ -574,45 +411,79 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 className="relative group flex flex-col gap-2"
               >
-                <div className="absolute -left-[37px] md:-left-[61px] top-0 w-8 h-8 rounded-full bg-slate-900 border-2 border-violet-500/60 shadow-md flex items-center justify-center z-10 group-hover:border-cyan-400 group-hover:shadow-[0_0_12px_rgba(56,189,248,0.35)] transition-all duration-300">
-                  <span className="font-orbitron text-[10px] font-black text-cyan-300">{item.phase}</span>
+                <div className="absolute -left-[37px] md:-left-[61px] top-0 w-8 h-8 rounded-full bg-white border-2 border-violet-500 shadow-md flex items-center justify-center z-10">
+                  <span className="font-orbitron text-[10px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-600">{item.phase}</span>
                 </div>
-                <span className="text-[10px] font-mono text-cyan-400 tracking-widest font-bold">{item.date}</span>
-                <h3 className="font-orbitron text-sm font-extrabold tracking-wider text-white uppercase drop-shadow-[0_0_12px_rgba(168,85,247,0.3)]">{item.title}</h3>
-                <p className="text-xs text-slate-200 leading-relaxed font-sans max-w-lg">{item.desc}</p>
+                <span className="text-[10px] font-mono tracking-widest font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">{item.date}</span>
+                <h3 className="font-orbitron text-sm font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 via-violet-800 to-pink-700 uppercase">{item.title}</h3>
+                <p className="text-xs text-slate-600 leading-relaxed font-sans max-w-lg">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-
-
       {/* ═══════════════ CLUB MEMBERS SECTION ═══════════════ */}
       <section id="members" className="relative py-24 px-6 z-10">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
-        
         <div className="max-w-7xl mx-auto flex flex-col items-center gap-16">
           <div className="text-center flex flex-col gap-3">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-violet-400 uppercase font-bold"
+              className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600"
             >
               Executive Leadership
             </motion.span>
             <motion.h2
               initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase"
+              className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 uppercase"
             >
               CLUB MEMBERS
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-xs md:text-sm text-slate-300 font-semibold max-w-xl leading-relaxed mx-auto font-sans glass-panel p-4 md:p-5 rounded-xl bg-slate-900/85 backdrop-blur-md border border-slate-700/80 shadow-lg text-white"
+              className="text-xs md:text-sm text-slate-700 font-semibold max-w-xl leading-relaxed mx-auto font-sans glass-panel p-4 md:p-5 rounded-xl bg-white border border-slate-200 shadow-md"
             >
               Meet the core executive leadership team driving Mobile App Club 2026.
             </motion.p>
           </div>
+
+          {/* Faculty Coordinator Featured Card */}
+          {EVENT_CONFIG.facultyCoordinator && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ y: -6 }}
+              className="relative max-w-md w-full rounded-2xl flex flex-col items-center text-center p-7 glass-panel overflow-hidden border-2 border-indigo-300 bg-gradient-to-b from-white via-indigo-50/40 to-white shadow-xl transition-all duration-300 group -mb-4"
+            >
+              <div className="absolute top-3 right-3 px-3 py-1 rounded-full text-[9px] font-mono font-extrabold tracking-widest bg-gradient-to-r from-blue-600 to-violet-600 text-white uppercase shadow-sm">
+                AP/IT
+              </div>
+
+              <div className="w-16 h-16 rounded-full bg-indigo-100 border-2 border-indigo-300 flex items-center justify-center mb-4 relative z-10 shadow-md group-hover:scale-110 transition-transform duration-300">
+                <GraduationCap className="w-8 h-8 text-indigo-700 group-hover:text-violet-600 transition-colors" />
+              </div>
+              
+              <span className="font-mono text-[10px] text-indigo-700 uppercase tracking-widest font-extrabold mb-1">
+                {EVENT_CONFIG.facultyCoordinator.tag}
+              </span>
+              
+              <h3 className="font-orbitron text-sm md:text-base font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 uppercase mb-3">
+                {EVENT_CONFIG.facultyCoordinator.role}
+              </h3>
+
+              <div className="w-full flex flex-col items-center gap-2 relative z-10 pt-3 border-t border-indigo-100">
+                <span className="font-orbitron text-base md:text-lg font-black tracking-wide text-slate-900">
+                  {EVENT_CONFIG.facultyCoordinator.name}
+                </span>
+
+                <span className="inline-block px-3.5 py-1 rounded-full text-[10px] font-mono font-extrabold tracking-widest bg-indigo-100 border border-indigo-300 text-indigo-900 uppercase shadow-sm">
+                  {EVENT_CONFIG.facultyCoordinator.dept}
+                </span>
+              </div>
+            </motion.div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 items-stretch w-full max-w-7xl">
             {EVENT_CONFIG.clubMembers.map((member, i) => {
@@ -625,26 +496,26 @@ export default function Home() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ y: -6 }}
-                  className="relative rounded-2xl flex flex-col items-center text-center p-6 glass-panel overflow-hidden border border-violet-500/30 bg-slate-900/80 hover:border-cyan-400/50 shadow-xl transition-all duration-300 group"
+                  className="relative rounded-2xl flex flex-col items-center text-center p-6 glass-panel overflow-hidden border border-slate-200 bg-white shadow-md transition-all duration-300 group"
                 >
-                  <div className="w-14 h-14 rounded-full bg-slate-800/90 border border-violet-400/40 flex items-center justify-center mb-4 relative z-10 shadow-inner group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-7 h-7 text-cyan-300 group-hover:text-amber-400 transition-colors" />
+                  <div className="w-14 h-14 rounded-full bg-violet-50 border border-violet-200 flex items-center justify-center mb-4 relative z-10 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="w-7 h-7 text-violet-600 group-hover:text-amber-500 transition-colors" />
                   </div>
                   
-                  <span className="font-mono text-[10px] text-cyan-400 uppercase tracking-widest font-bold mb-1">
+                  <span className="font-mono text-[10px] text-blue-600 uppercase tracking-widest font-bold mb-1">
                     {member.tag}
                   </span>
                   
-                  <h3 className="font-orbitron text-xs font-extrabold tracking-wider text-slate-300 uppercase mb-4">
+                  <h3 className="font-orbitron text-xs font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-700 via-pink-700 to-indigo-800 uppercase mb-4">
                     {member.role}
                   </h3>
 
-                  <div className="mt-auto w-full flex flex-col items-center gap-2.5 relative z-10 pt-3 border-t border-slate-800/80">
-                    <span className="font-orbitron text-xs md:text-sm font-black tracking-wide text-white drop-shadow-[0_0_12px_rgba(168,85,247,0.3)]">
+                  <div className="mt-auto w-full flex flex-col items-center gap-2.5 relative z-10 pt-3 border-t border-slate-100">
+                    <span className="font-orbitron text-xs md:text-sm font-black tracking-wide text-slate-900">
                       {member.name}
                     </span>
 
-                    <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest bg-violet-950/80 border border-violet-500/50 text-cyan-300 uppercase shadow-sm">
+                    <span className="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest bg-violet-100 border border-violet-300 text-violet-800 uppercase shadow-sm">
                       {member.dept}
                     </span>
                   </div>
@@ -657,12 +528,10 @@ export default function Home() {
 
       {/* ═══════════════ RULES & FAQ SECTION ═══════════════ */}
       <section className="relative py-24 px-6 max-w-7xl mx-auto z-10 grid grid-cols-1 lg:grid-cols-2 gap-16">
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
-
         <div id="rules" className="flex flex-col gap-10">
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-cyan-400 uppercase">Conduct & Criteria</span>
-          <h2 className="text-2xl md:text-4xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase">RULES & GUIDELINES</h2>
+            <span className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Conduct & Criteria</span>
+            <h2 className="text-2xl md:text-4xl font-black font-orbitron tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 uppercase">RULES & GUIDELINES</h2>
           </div>
           <div className="w-full">
             {EVENT_CONFIG.rules.map((rule, index) => (
@@ -673,8 +542,8 @@ export default function Home() {
 
         <div id="faq" className="flex flex-col gap-10">
           <div className="flex flex-col gap-3">
-            <span className="text-[10px] md:text-xs font-mono tracking-[0.35em] text-violet-600 uppercase">Frequently Asked</span>
-          <h2 className="text-2xl md:text-4xl font-black font-orbitron tracking-tight text-white drop-shadow-[0_4px_16px_rgba(15,23,42,0.9)] uppercase">QUESTIONS & ANSWERS</h2>
+            <span className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">Frequently Asked</span>
+            <h2 className="text-2xl md:text-4xl font-black font-orbitron tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 uppercase">QUESTIONS & ANSWERS</h2>
           </div>
           <div className="w-full">
             {EVENT_CONFIG.faqs.slice(0, 5).map((faq, index) => (
@@ -686,16 +555,14 @@ export default function Home() {
 
       {/* ═══════════════ BOTTOM CTA SECTION ═══════════════ */}
       <section className="relative py-20 px-6 z-10 max-w-5xl mx-auto text-center overflow-hidden">
-        <div className="glass-panel p-10 md:p-16 rounded-2xl border border-slate-200 relative">
-          <div className="absolute w-[200px] h-[200px] bg-blue-600/5 rounded-full blur-[80px] -top-12 -left-12 pointer-events-none" />
-          <div className="absolute w-[200px] h-[200px] bg-violet-600/5 rounded-full blur-[80px] -bottom-12 -right-12 pointer-events-none" />
-          <h2 className="text-xl md:text-4xl font-black font-orbitron tracking-wide uppercase text-white mb-4">Ready to Hack the Future?</h2>
-          <p className="text-xs md:text-sm text-slate-300 max-w-xl mx-auto leading-relaxed mb-8">
-            Registration slots are limited. Assemble your team, choose your category, and register today before the deadline expires.
+        <div className="glass-panel p-10 md:p-16 rounded-2xl border border-slate-200 bg-white relative shadow-xl">
+          <h2 className="text-xl md:text-4xl font-black font-orbitron tracking-wide uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-600 mb-4">Ready to Hack the Future?</h2>
+          <p className="text-xs md:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed mb-8">
+            Assemble your team, choose your category, and register today before the deadline expires.
           </p>
           <Link
             href="/register"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white font-bold shadow-[0_4px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_4px_30px_rgba(99,102,241,0.5)] transition-all duration-300"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white font-bold shadow-[0_4px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_4px_30px_rgba(99,102,241,0.5)] transition-all duration-300"
           >
             CONFIRM YOUR SPOT NOW <ArrowRight size={14} />
           </Link>

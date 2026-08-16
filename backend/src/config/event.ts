@@ -4,10 +4,9 @@ export const EVENT_CONFIG = {
   collegeName: "Tech Innovation University",
   eventDate: "August 22, 2026",
   registrationDeadline: "August 22, 2026 23:59:59",
-  maxTotalTeams: 20,
   venue: "Main Auditorium & Labs",
   prizePool: "₹50,000",
-  minTeamSize: 2,
+  minTeamSize: 3,
   maxTeamSize: 4,
   prizes: [
     { rank: "1st", amount: "₹25,000", description: "Grand Prize + Trophy" },
@@ -15,11 +14,11 @@ export const EVENT_CONFIG = {
     { rank: "3rd", amount: "₹10,000", description: "Second Runner Up" }
   ],
   tracks: [
-    "Mobile Applications",
-    "AI & Machine Learning",
-    "Web Technology",
-    "Cybersecurity",
-    "Social Impact"
+    "Cross-Platform Mobile Apps",
+    "AI-Powered Mobile Solutions",
+    "Real-Time Utility & Smart City Apps",
+    "Mobile Security & Data Privacy",
+    "Social Impact & SDG Mobile Apps"
   ],
   contact: {
     email: "mac@college.edu",

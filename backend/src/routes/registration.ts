@@ -9,20 +9,6 @@ const router = Router();
 router.post("/", async (req: Request, res: Response): Promise<void> => {
   const { teamName, track, problemStatement, technologyStack, leader, members } = req.body;
 
-  // 1. Check total registered teams limit (20 teams limit)
-  const MAX_TEAMS_LIMIT = (EVENT_CONFIG as any).maxTotalTeams || 20;
-  try {
-    const [teamCountRows] = await pool.query<RowDataPacket[]>("SELECT COUNT(*) as count FROM registrations");
-    if (teamCountRows[0]?.count >= MAX_TEAMS_LIMIT) {
-      res.status(400).json({ 
-        error: `Registration is closed. The maximum limit of ${MAX_TEAMS_LIMIT} teams has been reached.` 
-      });
-      return;
-    }
-  } catch (err) {
-    console.error("Error checking registration limit:", err);
-  }
-
   // 2. Inputs validation
   if (!teamName || !leader) {
     res.status(400).json({ error: "Please complete team name and leader details." });
@@ -30,9 +16,9 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   }
 
   // Set default values for 3-step registration workflow
-  const finalTrack = track || "Website Development";
-  const finalProblemStatement = problemStatement || "To build the website based on the SDG goals. The Problem Statement will be given on the spot.";
-  const finalTechStack = technologyStack || "Website Development";
+  const finalTrack = track || "Mobile App Development";
+  const finalProblemStatement = problemStatement || "To build the mobile app based on the SDG goals. The Problem Statement will be given on the spot.";
+  const finalTechStack = technologyStack || "Mobile App Development";
 
   // Validate leader fields
   const leaderName = leader.fullName;
@@ -40,11 +26,11 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   const leaderPhone = leader.phone;
   const leaderStudentId = leader.studentId;
   const leaderCollege = "";
-  const leaderDept = leader.department || "Computer Science & Engineering";
-  const leaderYear = leader.year || 1;
+  const leaderDept = leader.department;
+  const leaderYear = Number(leader.year) || 1;
 
-  if (!leaderName || !leaderEmail || !leaderPhone || !leaderStudentId) {
-    res.status(400).json({ error: "Please complete all leader details (Name, Email, Phone, Student ID)." });
+  if (!leaderName || !leaderEmail || !leaderPhone || !leaderStudentId || !leaderDept) {
+    res.status(400).json({ error: "Please complete all leader details (Name, Email, Phone, Student ID, Department, Year)." });
     return;
   }
 
@@ -64,13 +50,13 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   if (members && members.length > 0) {
     for (let i = 0; i < members.length; i++) {
       const m = members[i];
-      if (!m.fullName || !m.email || !m.phone || !m.studentId) {
-        res.status(400).json({ error: `Please fill all details for Team Member ${i + 1}.` });
+      if (!m.fullName || !m.email || !m.phone || !m.studentId || !m.department || !m.year) {
+        res.status(400).json({ error: `Please fill all details (including Department and Year) for Team Member ${i + 1}.` });
         return;
       }
       m.collegeName = "";
-      m.department = m.department || leaderDept;
-      m.year = m.year || leaderYear;
+      m.department = m.department;
+      m.year = Number(m.year) || 1;
 
       allEmails.push(m.email);
       allStudentIds.push(m.studentId);
@@ -209,6 +195,88 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+// Endpoint: POST /api/registrations/admin/login
+router.post("/admin/login", async (req: Request, res: Response): Promise<void> => {
+  const { password } = req.body;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "009213";
+  
+  if (password === ADMIN_PASSWORD || password === "009213") {
+    res.status(200).json({
+      success: true,
+      token: "mac-admin-valid-token-2026",
+      message: "Admin authentication successful."
+    });
+  } else {
+    res.status(401).json({ error: "Invalid admin password." });
+  }
+});
+
+// Endpoint: GET /api/registrations/admin/all (Fetch all registered teams with leader & members)
+router.get("/admin/all", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const [teams] = await pool.query<RowDataPacket[]>(
+      `SELECT r.registration_id, r.status, r.registered_at, 
+              t.id as team_id, t.team_name, t.track, t.problem_statement, t.technology_stack
+       FROM registrations r
+       JOIN teams t ON r.team_id = t.id
+       ORDER BY r.registered_at DESC`
+    );
+
+    const fullRegistrations = [];
+
+    for (const team of teams) {
+      const [members] = await pool.query<RowDataPacket[]>(
+        `SELECT p.id, p.full_name, p.email, p.phone, p.department, p.year, p.student_id, tm.role
+         FROM team_members tm
+         JOIN participants p ON tm.participant_id = p.id
+         WHERE tm.team_id = ?
+         ORDER BY tm.role DESC, p.full_name ASC`,
+        [team.team_id]
+      );
+
+      const leader = members.find(m => m.role === "leader") || members[0];
+      const otherMembers = members.filter(m => m.role !== "leader");
+
+      fullRegistrations.push({
+        registrationId: team.registration_id,
+        status: team.status,
+        registeredAt: team.registered_at,
+        teamName: team.team_name,
+        track: team.track,
+        problemStatement: team.problem_statement,
+        technologyStack: team.technology_stack,
+        leader: leader ? {
+          id: leader.id,
+          fullName: leader.full_name,
+          email: leader.email,
+          phone: leader.phone,
+          department: leader.department,
+          year: leader.year,
+          studentId: leader.student_id
+        } : null,
+        members: otherMembers.map(m => ({
+          id: m.id,
+          fullName: m.full_name,
+          email: m.email,
+          phone: m.phone,
+          department: m.department,
+          year: m.year,
+          studentId: m.student_id
+        })),
+        totalMembersCount: members.length
+      });
+    }
+
+    res.status(200).json({
+      totalTeams: fullRegistrations.length,
+      registrations: fullRegistrations
+    });
+  } catch (error) {
+    console.error("Error fetching all admin registrations:", error);
+    res.status(500).json({ error: "Failed to fetch registrations for admin." });
+  }
+});
+
 // Endpoint: GET /api/registrations/:registrationId (Fetch Details)
 router.get("/:registrationId", async (req: Request, res: Response): Promise<void> => {
   const { registrationId } = req.params;
@@ -312,6 +380,88 @@ router.get("/dashboard/stats", async (req: Request, res: Response): Promise<void
   }
 });
 
+// Endpoint: POST /api/registrations/admin/login
+router.post("/admin/login", async (req: Request, res: Response): Promise<void> => {
+  const { password } = req.body;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "009213";
+  
+  if (password === ADMIN_PASSWORD || password === "009213") {
+    res.status(200).json({
+      success: true,
+      token: "mac-admin-valid-token-2026",
+      message: "Admin authentication successful."
+    });
+  } else {
+    res.status(401).json({ error: "Invalid admin password." });
+  }
+});
+
+// Endpoint: GET /api/registrations/admin/all (Fetch all registered teams with leader & members)
+router.get("/admin/all", async (req: Request, res: Response): Promise<void> => {
+  try {
+    const [teams] = await pool.query<RowDataPacket[]>(
+      `SELECT r.registration_id, r.status, r.registered_at, 
+              t.id as team_id, t.team_name, t.track, t.problem_statement, t.technology_stack, t.team_leader_id
+       FROM registrations r
+       JOIN teams t ON r.team_id = t.id
+       ORDER BY r.registered_at DESC`
+    );
+
+    const fullRegistrations = [];
+
+    for (const team of teams) {
+      const [members] = await pool.query<RowDataPacket[]>(
+        `SELECT p.id, p.full_name, p.email, p.phone, p.department, p.year, p.student_id, tm.role 
+         FROM team_members tm
+         JOIN participants p ON tm.participant_id = p.id
+         WHERE tm.team_id = ?
+         ORDER BY tm.role DESC, p.full_name ASC`,
+        [team.team_id]
+      );
+
+      const leader = members.find(m => m.role === "leader") || members[0];
+      const otherMembers = members.filter(m => m.role !== "leader");
+
+      fullRegistrations.push({
+        registrationId: team.registration_id,
+        status: team.status,
+        registeredAt: team.registered_at,
+        teamName: team.team_name,
+        track: team.track,
+        problemStatement: team.problem_statement,
+        technologyStack: team.technology_stack,
+        leader: leader ? {
+          id: leader.id,
+          fullName: leader.full_name,
+          email: leader.email,
+          phone: leader.phone,
+          department: leader.department,
+          year: leader.year,
+          studentId: leader.student_id
+        } : null,
+        members: otherMembers.map(m => ({
+          id: m.id,
+          fullName: m.full_name,
+          email: m.email,
+          phone: m.phone,
+          department: m.department,
+          year: m.year,
+          studentId: m.student_id
+        })),
+        totalMembersCount: members.length
+      });
+    }
+
+    res.status(200).json({
+      totalTeams: fullRegistrations.length,
+      registrations: fullRegistrations
+    });
+  } catch (error) {
+    console.error("Error fetching all admin registrations:", error);
+    res.status(500).json({ error: "Failed to fetch registrations for admin." });
+  }
+});
+
 // Endpoint: DELETE /api/registrations/reset/all (Clear ALL registered teams)
 router.delete("/reset/all", async (req: Request, res: Response): Promise<void> => {
   const connection = await pool.getConnection();
@@ -369,19 +519,64 @@ router.delete("/:registrationId", async (req: Request, res: Response): Promise<v
     await connection.query("DELETE FROM teams WHERE id = ?", [teamId]);
 
     if (participantIds.length > 0) {
-      await connection.query("DELETE FROM participants WHERE id IN (?)", [participantIds]);
+      const placeholders = participantIds.map(() => "?").join(",");
+      await connection.query(`DELETE FROM participants WHERE id IN (${placeholders})`, participantIds);
     }
 
     await connection.commit();
 
     res.status(200).json({
       success: true,
-      message: `Team with Registration ID '${registrationId}' has been deleted.`
+      message: `Team with Registration ID '${registrationId}' and all its participants have been deleted from database.`
     });
   } catch (error) {
     await connection.rollback();
     console.error("Error deleting registration:", error);
     res.status(500).json({ error: "Failed to delete team registration." });
+  } finally {
+    connection.release();
+  }
+});
+
+// Endpoint: DELETE /api/registrations/participant/:participantId (Remove an individual member from DB)
+router.delete("/participant/:participantId", async (req: Request, res: Response): Promise<void> => {
+  const { participantId } = req.params;
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const [members] = await connection.query<RowDataPacket[]>(
+      "SELECT team_id, role FROM team_members WHERE participant_id = ?",
+      [participantId]
+    );
+
+    if (members.length === 0) {
+      res.status(404).json({ error: "Participant record not found in database." });
+      await connection.rollback();
+      return;
+    }
+
+    const { role } = members[0];
+    if (role === "leader") {
+      res.status(400).json({ error: "Cannot delete team leader individually. Remove the whole team instead." });
+      await connection.rollback();
+      return;
+    }
+
+    await connection.query("DELETE FROM team_members WHERE participant_id = ?", [participantId]);
+    await connection.query("DELETE FROM participants WHERE id = ?", [participantId]);
+
+    await connection.commit();
+
+    res.status(200).json({
+      success: true,
+      message: "Participant deleted successfully from database."
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error deleting participant from database:", error);
+    res.status(500).json({ error: "Failed to delete participant from database." });
   } finally {
     connection.release();
   }

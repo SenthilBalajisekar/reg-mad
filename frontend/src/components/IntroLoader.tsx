@@ -40,17 +40,10 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.05, filter: "blur(8px)" }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#02000f] overflow-hidden scanline-overlay"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white overflow-hidden"
         >
           {/* Subtle grid lines in loader */}
-          <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
-          
-          {/* Cybernetic glowing background aura */}
-          <div className="absolute w-[300px] h-[300px] bg-neon-purple/20 rounded-full blur-[100px] pointer-events-none" />
-          <div className="absolute w-[200px] h-[200px] bg-neon-blue/15 rounded-full blur-[80px] pointer-events-none" />
-
-          {/* Glitchy scanner lines */}
-          <div className="absolute left-0 right-0 h-[2px] bg-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.8)] animate-pulse pointer-events-none" style={{ top: "40%" }} />
+          <div className="absolute inset-0 bg-grid-pattern opacity-20 pointer-events-none" />
 
           <div className="relative text-center z-10 px-4">
             <AnimatePresence mode="wait">
@@ -63,10 +56,10 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
                   transition={{ duration: 0.3 }}
                   className="flex flex-col items-center gap-2"
                 >
-                  <span className="text-xs uppercase tracking-[0.4em] text-neon-blue font-mono font-bold text-glow-blue">
+                  <span className="text-xs uppercase tracking-[0.4em] text-blue-600 font-mono font-bold">
                     System Booting
                   </span>
-                  <h1 className="text-3xl md:text-5xl font-extrabold tracking-[0.2em] font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+                  <h1 className="text-3xl md:text-5xl font-extrabold tracking-[0.2em] font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-900">
                     MOBILE APP CLUB
                   </h1>
                 </motion.div>
@@ -79,11 +72,14 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
                   transition={{ type: "spring", stiffness: 100, damping: 15 }}
                   className="flex flex-col items-center gap-4"
                 >
-                  <h2 className="text-4xl md:text-7xl font-black tracking-[0.15em] font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink text-glow-blue">
-                    HACK THE FUTURE
+                  <h2 className="text-2xl md:text-5xl font-black tracking-[0.1em] font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-700">
+                    DREAM IT . CODE IT . LAUNCH IT
                   </h2>
-                  <p className="text-sm font-mono text-slate-400 tracking-[0.3em] uppercase">
+                  <p className="text-sm font-mono text-blue-700 tracking-[0.3em] uppercase font-bold">
                     Build the Unexpected
+                  </p>
+                  <p className="text-xs font-mono text-amber-600 tracking-[0.3em] uppercase font-extrabold">
+                    POWERED BY ISTE
                   </p>
                 </motion.div>
               )}

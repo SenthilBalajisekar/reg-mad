@@ -180,11 +180,14 @@ function HeroScreen() {
 
         {/* Hero text */}
         <Card accent="#3b82f6" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', letterSpacing: 1, lineHeight: 1.3 }}>
-            HACK THE<br />FUTURE
+          <div style={{ fontSize: 10, fontWeight: 900, color: '#fff', letterSpacing: 0.5, lineHeight: 1.3 }}>
+            DREAM IT . CODE IT . LAUNCH IT
           </div>
-          <div style={{ fontSize: 8, color: '#3b82f6', marginTop: 4, letterSpacing: 2, textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 8, color: '#3b82f6', marginTop: 4, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 700 }}>
             Build The Unexpected
+          </div>
+          <div style={{ fontSize: 7, color: '#fbbf24', marginTop: 2, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 800 }}>
+            POWERED BY ISTE
           </div>
         </Card>
 
