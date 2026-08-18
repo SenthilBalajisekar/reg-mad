@@ -5,12 +5,11 @@ exports.EVENT_CONFIG = {
     eventName: "MOBILE APP CLUB HACKATHON 2026",
     tagline: "BUILD THE UNEXPECTED",
     collegeName: "Tech Innovation University",
-    eventDate: "March 13 - 14, 2026",
-    registrationDeadline: "December 31, 2026",
-    maxTotalTeams: 20,
+    eventDate: "August 22, 2026",
+    registrationDeadline: "August 22, 2026 23:59:59",
     venue: "Main Auditorium & Labs",
     prizePool: "₹50,000",
-    minTeamSize: 2,
+    minTeamSize: 3,
     maxTeamSize: 4,
     prizes: [
         { rank: "1st", amount: "₹25,000", description: "Grand Prize + Trophy" },
@@ -18,11 +17,11 @@ exports.EVENT_CONFIG = {
         { rank: "3rd", amount: "₹10,000", description: "Second Runner Up" }
     ],
     tracks: [
-        "Mobile Applications",
-        "AI & Machine Learning",
-        "Web Technology",
-        "Cybersecurity",
-        "Social Impact"
+        "Cross-Platform Mobile Apps",
+        "AI-Powered Mobile Solutions",
+        "Real-Time Utility & Smart City Apps",
+        "Mobile Security & Data Privacy",
+        "Social Impact & SDG Mobile Apps"
     ],
     contact: {
         email: "mac@college.edu",

@@ -27,10 +27,10 @@ app.use((0, cors_1.default)({
 // Body Parsers
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Rate Limiting (Prevent API spam)
+// Rate Limiting (Prevent API spam while allowing high throughput)
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per window
+    max: 2000, // limit each IP to 2000 requests per window
     message: { error: "Too many requests from this IP. Please try again after 15 minutes." },
     standardHeaders: true,
     legacyHeaders: false

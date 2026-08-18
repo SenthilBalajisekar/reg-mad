@@ -30,10 +30,10 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate Limiting (Prevent API spam)
+// Rate Limiting (Prevent API spam while allowing high throughput)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per window
+  max: 2000, // limit each IP to 2000 requests per window
   message: { error: "Too many requests from this IP. Please try again after 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false
