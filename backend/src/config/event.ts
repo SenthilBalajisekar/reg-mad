@@ -2,9 +2,9 @@ export const EVENT_CONFIG = {
   eventName: "MOBILE APP CLUB HACKATHON 2026",
   tagline: "BUILD THE UNEXPECTED",
   collegeName: "Tech Innovation University",
-  eventDate: "August 22, 2026",
-  registrationDeadline: "August 22, 2026 23:59:59",
-  venue: "Main Auditorium & Labs",
+  eventDate: "September 9, 2026",
+  registrationDeadline: "September 9, 2026 23:59:59",
+  venue: "Ramanujan Hall : CH 5",
   prizePool: "₹50,000",
   minTeamSize: 3,
   maxTeamSize: 4,
@@ -21,9 +21,9 @@ export const EVENT_CONFIG = {
     "Social Impact & SDG Mobile Apps"
   ],
   contact: {
-    email: "mac@college.edu",
-    phone: "+91 98765 43210",
-    instagram: "https://instagram.com/mobileappclub",
+    email: "senthilbalaji824@gamil.com",
+    phone: "+91 93443 56417 / +91 95971 71573",
+    instagram: "https://www.instagram.com/iste.mkce?igsh=aDRoa2pldjIydDB4",
     github: "https://github.com/mobileappclub",
     linkedin: "https://linkedin.com/company/mobileappclub"
   }

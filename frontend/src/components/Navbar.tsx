@@ -26,9 +26,7 @@ export default function Navbar() {
     { name: "About", href: "#about" },
     { name: "Tracks", href: "#tracks" },
     { name: "Timeline", href: "#timeline" },
-    { name: "Members", href: "#members" },
-    { name: "Rules", href: "#rules" },
-    { name: "FAQ", href: "#faq" }
+    { name: "Members", href: "#members" }
   ];
 
   return (

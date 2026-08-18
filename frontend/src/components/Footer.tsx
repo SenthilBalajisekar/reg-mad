@@ -70,37 +70,14 @@ export default function Footer() {
           </h4>
           <div className="flex items-center gap-4">
             <a
-              href={EVENT_CONFIG.contact.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-violet-50 hover:border-violet-400 transition-all duration-300 shadow-sm"
-            >
-              <Github size={16} className="text-slate-700" />
-            </a>
-            <a
               href={EVENT_CONFIG.contact.instagram}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-pink-50 hover:border-pink-400 transition-all duration-300 shadow-sm"
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center hover:bg-pink-50 hover:border-pink-500 transition-all duration-300 shadow-sm group"
+              title="Follow us on Instagram"
             >
-              <Instagram size={16} className="text-slate-700" />
+              <Instagram size={20} className="text-slate-700 group-hover:text-pink-600 transition-colors" />
             </a>
-            <a
-              href={EVENT_CONFIG.contact.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-blue-50 hover:border-blue-400 transition-all duration-300 shadow-sm"
-            >
-              <Linkedin size={16} className="text-slate-700" />
-            </a>
-          </div>
-          <div className="mt-2">
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-medium">
-              VENUE: {EVENT_CONFIG.venue}
-            </span>
-            <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-medium">
-              DATES: {EVENT_CONFIG.eventDate}
-            </span>
           </div>
         </div>
       </div>

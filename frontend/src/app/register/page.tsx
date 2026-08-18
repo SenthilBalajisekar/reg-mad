@@ -261,6 +261,16 @@ export default function Register() {
       <main className="relative z-10 flex-grow flex items-center justify-center px-4 py-12 md:py-16">
         <div className="w-full max-w-3xl glass-panel p-6 md:p-10 rounded-2xl border border-slate-200 bg-white shadow-2xl flex flex-col gap-8">
           
+          {/* EVENT BANNER BADGES */}
+          <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono font-bold text-slate-800 uppercase tracking-wider">
+            <span className="flex items-center gap-1.5">
+              <span className="text-violet-600 font-extrabold">📍 VENUE:</span> {EVENT_CONFIG.venue}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-pink-600 font-extrabold">📅 DATE:</span> {EVENT_CONFIG.eventDate}
+            </span>
+          </div>
+
           {/* STEP PROGRESS BAR */}
           <div className="w-full flex items-center justify-between relative px-6">
             <div className="absolute top-[18px] left-[10%] right-[10%] h-[3px] bg-slate-200 z-0" />
@@ -702,8 +712,8 @@ export default function Register() {
                       </div>
 
                       <div className="flex flex-col gap-1 pb-1">
-                        <span className="text-[10px] text-blue-900 uppercase font-extrabold">EVENT GOAL</span>
-                        <span className="text-slate-900 truncate max-w-xs font-extrabold">Mobile App Development based on SDG goals</span>
+                        <span className="text-[10px] text-blue-900 uppercase font-extrabold">EVENT VENUE & DATE</span>
+                        <span className="text-slate-900 font-extrabold">{EVENT_CONFIG.venue} | {EVENT_CONFIG.eventDate}</span>
                       </div>
                     </div>
 
