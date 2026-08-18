@@ -190,3 +190,4 @@ Analytical statistics summarizing total teams, participants, track breakdowns, a
 - **CORS Protection**: Access to backend routes restricted to defined domain origins (`http://localhost:3000`).
 # mad-reg
 # mad-reg
+# mad-reg
