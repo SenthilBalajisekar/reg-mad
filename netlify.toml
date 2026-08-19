@@ -12,3 +12,18 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
+# Skip slow post-processing (Next.js handles JS/CSS bundling natively)
+[build.processing]
+  skip_processing = true
+
+[build.processing.css]
+  bundle = false
+  minify = false
+
+[build.processing.js]
+  bundle = false
+  minify = false
+
+[build.processing.html]
+  pretty_urls = false
+
