@@ -16,9 +16,11 @@ import {
   Phone,
   Mail,
   FileSpreadsheet,
+  FileText,
   CheckCircle,
   Eye
 } from "lucide-react";
+import { jsPDF } from "jspdf";
 
 interface AdminModalProps {
   isOpen: boolean;
@@ -255,6 +257,261 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
     document.body.removeChild(link);
   };
 
+  const exportToPDF = () => {
+    if (registrations.length === 0) return;
+
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 14;
+    let y = 32;
+
+    const addHeader = () => {
+      doc.setFillColor(30, 41, 59); // slate-800
+      doc.rect(margin, 10, pageWidth - margin * 2, 16, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(255, 255, 255);
+      doc.text("MOBILE APP CLUB HACKATHON 2026 - REGISTERED TEAMS", margin + 4, 18);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(203, 213, 225);
+      doc.text(`Generated: ${new Date().toLocaleString()}  |  Total Teams: ${registrations.length}`, margin + 4, 23);
+
+      doc.setTextColor(15, 23, 42);
+    };
+
+    const checkPageBreak = (neededHeight: number) => {
+      if (y + neededHeight > pageHeight - 16) {
+        doc.addPage();
+        addHeader();
+        y = 32;
+      }
+    };
+
+    addHeader();
+
+    registrations.forEach((r, index) => {
+      const memberCount = r.members ? r.members.length : 0;
+      const boxHeight = 22 + (memberCount > 0 ? 6 + memberCount * 5.5 : 5);
+
+      checkPageBreak(boxHeight + 5);
+
+      // Card boundary
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(margin, y, pageWidth - margin * 2, boxHeight, 2, 2, "FD");
+
+      // Card Header
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(margin, y, pageWidth - margin * 2, 7.5, 2, 2, "F");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`${index + 1}. TEAM: ${r.teamName.toUpperCase()}`, margin + 3, y + 5.2);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(37, 99, 235);
+      const metaText = `ID: ${r.registrationId} | TRACK: ${r.track}`;
+      doc.text(metaText, pageWidth - margin - doc.getTextWidth(metaText) - 3, y + 5.2);
+
+      let innerY = y + 12;
+
+      // Leader
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(109, 40, 217);
+      doc.text("Leader:", margin + 3, innerY);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(51, 65, 85);
+      const leaderName = r.leader?.fullName || "N/A";
+      const leaderEmail = r.leader?.email || "N/A";
+      const leaderPhone = r.leader?.phone || "N/A";
+      const leaderDept = r.leader?.department ? `${r.leader.department}` : "";
+      const leaderYear = r.leader?.year ? `Yr ${r.leader.year}` : "";
+      const leaderId = r.leader?.studentId ? `[ID: ${r.leader.studentId}]` : "";
+
+      doc.text(
+        `${leaderName} ${leaderId} | Email: ${leaderEmail} | Phone: ${leaderPhone} | ${leaderDept} ${leaderYear}`,
+        margin + 17,
+        innerY
+      );
+
+      innerY += 5.5;
+
+      // Members
+      if (memberCount > 0) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.text("Members:", margin + 3, innerY);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7.5);
+        doc.setTextColor(51, 65, 85);
+
+        r.members.forEach((m, mIdx) => {
+          const mName = m.fullName || "N/A";
+          const mEmail = m.email || "N/A";
+          const mPhone = m.phone || "N/A";
+          const mDept = m.department ? `${m.department}` : "";
+          const mId = m.studentId ? `[ID: ${m.studentId}]` : "";
+          doc.text(
+            `M0${mIdx + 2}: ${mName} ${mId} - ${mEmail} | ${mPhone} ${mDept ? `| ${mDept}` : ""}`,
+            margin + 17,
+            innerY
+          );
+          innerY += 5;
+        });
+      } else {
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(7.5);
+        doc.setTextColor(148, 163, 184);
+        doc.text("No additional team members listed", margin + 17, innerY);
+        innerY += 4.5;
+      }
+
+      y += boxHeight + 4;
+    });
+
+    const totalPages = doc.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text(
+        `Page ${i} of ${totalPages}`,
+        pageWidth / 2,
+        pageHeight - 6,
+        { align: "center" }
+      );
+    }
+
+    doc.save(`Registered_Teams_MAC_2026_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  const exportSingleTeamPDF = (team: Registration) => {
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 14;
+
+    // Header banner
+    doc.setFillColor(30, 41, 59);
+    doc.rect(margin, 12, pageWidth - margin * 2, 20, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(255, 255, 255);
+    doc.text("MOBILE APP CLUB HACKATHON 2026", margin + 6, 21);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(203, 213, 225);
+    doc.text("Official Team Registration Card", margin + 6, 27);
+
+    // Team summary box
+    let y = 38;
+    doc.setFillColor(241, 245, 249);
+    doc.roundedRect(margin, y, pageWidth - margin * 2, 24, 2, 2, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor(15, 23, 42);
+    doc.text(team.teamName.toUpperCase(), margin + 5, y + 8);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Registration ID: ${team.registrationId}`, margin + 5, y + 14);
+    doc.text(`Track: ${team.track} | Total Members: ${team.totalMembersCount}`, margin + 5, y + 20);
+
+    y += 30;
+
+    // Leader box
+    if (team.leader) {
+      doc.setFillColor(245, 243, 255);
+      doc.setDrawColor(196, 181, 253);
+      doc.roundedRect(margin, y, pageWidth - margin * 2, 34, 2, 2, "FD");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(109, 40, 217);
+      doc.text("TEAM LEADER", margin + 5, y + 7);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(30, 41, 59);
+      doc.text(`Full Name: ${team.leader.fullName}`, margin + 5, y + 14);
+      doc.text(`Student ID: ${team.leader.studentId || "N/A"}`, margin + 95, y + 14);
+      doc.text(`Email: ${team.leader.email}`, margin + 5, y + 20);
+      doc.text(`Phone: ${team.leader.phone}`, margin + 95, y + 20);
+      doc.text(`Department: ${team.leader.department || "N/A"}`, margin + 5, y + 26);
+      doc.text(`Year: Year ${team.leader.year || 1}`, margin + 95, y + 26);
+
+      y += 40;
+    }
+
+    // Members box
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`TEAM MEMBERS (${team.members.length})`, margin, y);
+    y += 4;
+
+    if (team.members.length === 0) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(100, 116, 139);
+      doc.text("No additional team members listed.", margin, y + 6);
+    } else {
+      team.members.forEach((m, idx) => {
+        doc.setFillColor(248, 250, 252);
+        doc.setDrawColor(226, 232, 240);
+        doc.roundedRect(margin, y + 2, pageWidth - margin * 2, 26, 2, 2, "FD");
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.5);
+        doc.setTextColor(30, 41, 59);
+        doc.text(`Member 0${idx + 2}: ${m.fullName}`, margin + 5, y + 8);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(71, 85, 105);
+        doc.text(`Email: ${m.email}`, margin + 5, y + 14);
+        doc.text(`Phone: ${m.phone}`, margin + 95, y + 14);
+        doc.text(`Student ID: ${m.studentId || "N/A"}`, margin + 5, y + 20);
+        doc.text(`Department: ${m.department || "N/A"} (Yr ${m.year || 1})`, margin + 95, y + 20);
+
+        y += 28;
+      });
+    }
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text(
+      `Generated on ${new Date().toLocaleString()} • Mobile App Club Hackathon`,
+      pageWidth / 2,
+      285,
+      { align: "center" }
+    );
+
+    doc.save(`${team.teamName.replace(/\s+/g, '_')}_${team.registrationId}.pdf`);
+  };
+
   const filteredRegistrations = registrations.filter(r => {
     const query = searchQuery.toLowerCase();
     return (
@@ -474,6 +731,15 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
                   </button>
 
                   <button
+                    onClick={exportToPDF}
+                    disabled={registrations.length === 0}
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-mono font-bold tracking-wider transition-all disabled:opacity-50 shadow-sm"
+                  >
+                    <FileText size={15} />
+                    EXPORT PDF
+                  </button>
+
+                  <button
                     onClick={handleResetAll}
                     disabled={registrations.length === 0 || isResettingAll}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-mono font-bold transition-all disabled:opacity-40"
@@ -668,7 +934,15 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
                   )}
                 </div>
 
-                <div className="pt-2 flex justify-end">
+                <div className="pt-2 flex justify-between items-center">
+                  <button
+                    onClick={() => exportSingleTeamPDF(selectedTeam)}
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-mono font-bold transition-all shadow-sm"
+                  >
+                    <FileText size={14} />
+                    DOWNLOAD PDF
+                  </button>
+
                   <button
                     onClick={() => setSelectedTeam(null)}
                     className="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-mono font-bold"
