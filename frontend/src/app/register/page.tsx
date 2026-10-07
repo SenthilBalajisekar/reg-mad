@@ -553,20 +553,28 @@ export default function Register() {
 
                     {/* Members List */}
                     <div className="flex flex-col gap-4 mt-2">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <span className="text-xs font-mono tracking-widest text-slate-900 uppercase font-extrabold">
                           Additional Team Members
                         </span>
                         
                         {membersCount < 4 && (
-                          <button
-                            type="button"
-                            onClick={() => append({ fullName: "", email: "", phone: "", studentId: "", department: "", year: 1 })}
-                            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-[11px] font-mono text-white font-extrabold shadow-sm transition-colors duration-200"
-                          >
-                            <Plus size={13} />
-                            ADD MEMBER
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <span 
+                              onClick={() => append({ fullName: "", email: "", phone: "", studentId: "", department: "", year: 1 })}
+                              className="text-xs font-mono text-slate-600 font-semibold cursor-pointer hover:text-violet-700 transition-colors"
+                            >
+                              Click here to add members &rarr;
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => append({ fullName: "", email: "", phone: "", studentId: "", department: "", year: 1 })}
+                              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-[11px] font-mono text-white font-extrabold shadow-sm transition-colors duration-200"
+                            >
+                              <Plus size={13} />
+                              ADD MEMBER
+                            </button>
+                          </div>
                         )}
                       </div>
 
