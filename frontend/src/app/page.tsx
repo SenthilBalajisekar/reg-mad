@@ -50,10 +50,14 @@ export default function Home() {
     teamsCount: number;
     participantsCount: number;
     isLoaded: boolean;
+    isRegistrationOpen: boolean;
+    effectiveOpen: boolean;
   }>({
     teamsCount: 0,
     participantsCount: 0,
-    isLoaded: false
+    isLoaded: false,
+    isRegistrationOpen: true,
+    effectiveOpen: true
   });
 
   const { scrollYProgress } = useScroll();
@@ -77,24 +81,35 @@ export default function Home() {
   };
 
   // Fetch real-time registration stats directly from backend MySQL database
-  useEffect(() => {
-    const fetchRealTimeStats = async () => {
-      try {
-        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`);
-        if (res.ok) {
-          const data = await res.json();
-          setRealTimeStats({
-            teamsCount: data.totalTeams ?? data.totalRegistrations ?? 0,
-            participantsCount: data.totalParticipants ?? 0,
-            isLoaded: true
-          });
-        }
-      } catch (e) {
-        console.error("Could not fetch live stats:", e);
+  const fetchRealTimeStats = async () => {
+    try {
+      const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`).catch(() => null);
+      if (res && res.ok) {
+        const data = await res.json();
+        setRealTimeStats({
+          teamsCount: data.totalTeams ?? data.totalRegistrations ?? 0,
+          participantsCount: data.totalParticipants ?? 0,
+          isLoaded: true,
+          isRegistrationOpen: data.isRegistrationOpen ?? true,
+          effectiveOpen: data.effectiveOpen ?? true
+        });
+      } else {
+        setRealTimeStats((prev) => ({ ...prev, isLoaded: true }));
       }
-    };
+    } catch {
+      setRealTimeStats((prev) => ({ ...prev, isLoaded: true }));
+    }
+  };
+
+  useEffect(() => {
     fetchRealTimeStats();
+    const interval = setInterval(fetchRealTimeStats, 5000);
+    window.addEventListener("registrationStatusChanged", fetchRealTimeStats);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("registrationStatusChanged", fetchRealTimeStats);
+    };
   }, []);
 
   const pillars = [
@@ -148,6 +163,9 @@ export default function Home() {
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/90 border border-slate-200/90 backdrop-blur-md shadow-md text-xs font-mono font-bold text-slate-800 uppercase tracking-wider">
               <span className="text-pink-600 font-extrabold">DATE:</span> {EVENT_CONFIG.eventDate}
             </span>
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/90 border border-slate-200/90 backdrop-blur-md shadow-md text-xs font-mono font-bold text-slate-800 uppercase tracking-wider">
+              <span className="text-blue-600 font-extrabold">TIME:</span> {EVENT_CONFIG.eventTiming}
+            </span>
           </motion.div>
 
           <motion.div
@@ -198,12 +216,21 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-3.5 mt-2 md:mt-4 w-full"
           >
-            <Link
-              href="/register"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white text-center font-bold shadow-[0_4px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_4px_30px_rgba(99,102,241,0.55)] transition-all duration-300 transform hover:-translate-y-0.5"
-            >
-              REGISTER NOW →
-            </Link>
+            {realTimeStats.effectiveOpen ? (
+              <Link
+                href="/register"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white text-center font-bold shadow-[0_4px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_4px_30px_rgba(99,102,241,0.55)] transition-all duration-300 transform hover:-translate-y-0.5"
+              >
+                REGISTER NOW →
+              </Link>
+            ) : (
+              <span
+                className="w-full sm:w-auto px-8 py-3.5 rounded-lg bg-slate-200 border border-slate-300 text-xs font-mono uppercase tracking-widest text-slate-500 text-center font-bold shadow-inner cursor-not-allowed select-none"
+                title="Registration is currently closed"
+              >
+                REGISTRATION HAS CLOSED
+              </span>
+            )}
             <a
               href="#about"
               className="w-full sm:w-auto px-8 py-3.5 rounded-lg glass-panel text-xs font-mono uppercase tracking-widest text-slate-800 font-bold text-center border border-slate-300 bg-white hover:border-violet-500 transition-all duration-300 shadow-md"
@@ -248,11 +275,11 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
           {[
-            { value: 5, label: "HACKATHON HOURS", suffix: "H", prefix: "" },
+            { value: EVENT_CONFIG.hackathonHours || 8, label: "HACKATHON HOURS", suffix: "H", prefix: "" },
             {
               value: realTimeStats.isLoaded ? realTimeStats.teamsCount : 0,
-              label: "TEAMS REGISTERED",
-              suffix: "",
+              label: `TEAMS REGISTERED (LIMIT: ${EVENT_CONFIG.maxTotalTeams || 25})`,
+              suffix: ` / ${EVENT_CONFIG.maxTotalTeams || 25}`,
               prefix: ""
             }
           ].map((stat, i) => (
@@ -375,12 +402,12 @@ export default function Home() {
       </section>
 
       {/* ═══════════════ TIMELINE SECTION ═══════════════ */}
-      <section id="timeline" className="relative py-24 px-6 z-10 max-w-7xl mx-auto">
+      <section id="timeline" className="relative py-24 px-4 sm:px-6 z-20 max-w-[1550px] mx-auto">
         <div className="flex flex-col items-center gap-16">
           <div className="text-center flex flex-col gap-3">
             <motion.span
               initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-              className="text-[10px] md:text-xs font-mono tracking-[0.35em] uppercase font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
+              className="text-xs md:text-sm font-mono tracking-[0.35em] uppercase font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"
             >
               Event Milestones
             </motion.span>
@@ -393,8 +420,8 @@ export default function Home() {
           </div>
 
           {/* Desktop timeline */}
-          <div className="hidden lg:grid grid-cols-6 gap-6 relative w-full pt-10">
-            <div className="absolute top-[82px] left-[8%] right-[8%] h-[2px] bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-amber-500 opacity-80" />
+          <div className="hidden lg:grid grid-cols-7 gap-3.5 relative w-full pt-10 items-stretch">
+            <div className="absolute top-[112px] left-[5%] right-[5%] h-[3px] bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-amber-500 opacity-90 z-0" />
             {EVENT_CONFIG.timeline.map((item, i) => (
               <motion.div
                 key={item.phase}
@@ -402,20 +429,36 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="flex flex-col items-center text-center group"
+                className="flex flex-col items-center text-center group relative z-10 h-full"
               >
-                <span className="text-[10px] font-mono tracking-widest mb-2 font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-600">{item.date}</span>
-                <div className="w-12 h-12 rounded-full bg-white border-2 border-violet-500 flex items-center justify-center mb-6 relative z-10 shadow-md group-hover:border-pink-500 group-hover:shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all duration-300">
-                  <span className="font-orbitron text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">{item.phase}</span>
+                <div className="h-9 flex items-center justify-center mb-3">
+                  <span className="text-xs font-mono font-black text-blue-700 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-blue-200 shadow-md whitespace-nowrap">
+                    {item.date}
+                  </span>
                 </div>
-                <h3 className="font-orbitron text-[11px] md:text-xs font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 via-violet-800 to-pink-700 mb-2 uppercase">{item.title}</h3>
-                <p className="text-[11px] text-slate-600 leading-relaxed font-sans px-2">{item.desc}</p>
+
+                <div className="w-14 h-14 rounded-full bg-white border-2 border-violet-600 flex items-center justify-center mb-5 relative z-10 shadow-xl group-hover:scale-110 group-hover:border-pink-500 transition-all duration-300 shrink-0">
+                  <span className="font-orbitron text-sm md:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+                    {item.phase}
+                  </span>
+                </div>
+
+                <div className="glass-panel w-full bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-slate-200/90 shadow-xl flex flex-col justify-start items-center gap-2.5 group-hover:border-violet-300 transition-all duration-300 h-[155px]">
+                  <div className="h-10 flex items-center justify-center text-center w-full">
+                    <h3 className="font-orbitron text-xs sm:text-[13px] font-black tracking-wide text-slate-900 uppercase leading-snug">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-700 leading-relaxed font-sans font-medium text-center">
+                    {item.desc}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
 
           {/* Mobile timeline */}
-          <div className="lg:hidden flex flex-col gap-10 relative w-full pl-6 md:pl-12 border-l-2 border-gradient-to-b from-blue-500 via-purple-500 to-pink-500">
+          <div className="lg:hidden flex flex-col gap-8 relative w-full pl-6 md:pl-12 border-l-2 border-gradient-to-b from-blue-500 via-purple-500 to-pink-500">
             {EVENT_CONFIG.timeline.map((item, i) => (
               <motion.div
                 key={item.phase}
@@ -425,12 +468,23 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.08 }}
                 className="relative group flex flex-col gap-2"
               >
-                <div className="absolute -left-[37px] md:-left-[61px] top-0 w-8 h-8 rounded-full bg-white border-2 border-violet-500 shadow-md flex items-center justify-center z-10">
-                  <span className="font-orbitron text-[10px] font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-600">{item.phase}</span>
+                <div className="absolute -left-[37px] md:-left-[61px] top-2 w-9 h-9 rounded-full bg-white border-2 border-violet-600 shadow-md flex items-center justify-center z-10">
+                  <span className="font-orbitron text-xs font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-pink-600">
+                    {item.phase}
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono tracking-widest font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">{item.date}</span>
-                <h3 className="font-orbitron text-sm font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 via-violet-800 to-pink-700 uppercase">{item.title}</h3>
-                <p className="text-xs text-slate-600 leading-relaxed font-sans max-w-lg">{item.desc}</p>
+                
+                <div className="glass-panel bg-white/95 backdrop-blur-md p-4 rounded-2xl border border-slate-200 shadow-lg flex flex-col gap-2">
+                  <span className="text-xs font-mono font-black text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 w-fit">
+                    {item.date}
+                  </span>
+                  <h3 className="font-orbitron text-sm md:text-base font-black text-slate-900 uppercase">
+                    {item.title}
+                  </h3>
+                  <p className="text-xs md:text-sm text-slate-700 leading-relaxed font-sans font-medium">
+                    {item.desc}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -542,31 +596,7 @@ export default function Home() {
 
 
 
-      {/* ═══════════════ BOTTOM CTA SECTION ═══════════════ */}
-      <section className="relative py-20 px-6 z-10 max-w-5xl mx-auto text-center overflow-hidden">
-        <div className="glass-panel p-10 md:p-16 rounded-2xl border border-slate-200 bg-white relative shadow-xl">
-          <h2 className="text-xl md:text-4xl font-black font-orbitron tracking-wide uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-violet-600 to-pink-600 mb-4">Ready to Hack the Future?</h2>
-          <p className="text-xs md:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed mb-6">
-            Assemble your team, choose your category, and register today before the deadline expires.
-          </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3.5 mb-8 text-xs font-mono font-bold text-slate-800 uppercase tracking-wider">
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
-              <span className="text-violet-600 font-extrabold">VENUE:</span> {EVENT_CONFIG.venue}
-            </span>
-            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 border border-slate-200 shadow-sm">
-              <span className="text-pink-600 font-extrabold">DATE:</span> {EVENT_CONFIG.eventDate}
-            </span>
-          </div>
-
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-gradient-to-r from-blue-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white font-bold shadow-[0_4px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_4px_30px_rgba(99,102,241,0.5)] transition-all duration-300"
-          >
-            CONFIRM YOUR SPOT NOW <ArrowRight size={14} />
-          </Link>
-        </div>
-      </section>
 
       <Footer />
     </div>

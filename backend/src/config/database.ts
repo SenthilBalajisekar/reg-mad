@@ -73,7 +73,30 @@ export async function testConnection() {
       ) ENGINE=InnoDB;
     `);
 
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS settings (
+          setting_key VARCHAR(100) PRIMARY KEY,
+          setting_value VARCHAR(255) NOT NULL
+      ) ENGINE=InnoDB;
+    `);
+
+    await connection.query(`
+      INSERT INTO settings (setting_key, setting_value)
+      VALUES ('registration_open', 'true')
+      ON DUPLICATE KEY UPDATE setting_key=setting_key;
+    `);
+
     console.log("✅ Database tables verified and auto-created successfully.");
+
+    // Clean up sample/seed mock data if present
+    await connection.query("DELETE FROM registrations WHERE registration_id = 'HACK-2026-00001'").catch(() => {});
+    await connection.query("DELETE FROM teams WHERE team_name = 'Alpha Devs'").catch(() => {});
+    await connection.query("DELETE FROM participants WHERE email = 'john.doe@example.com'").catch(() => {});
+
+    // Normalize existing registration IDs to 2-digit format (e.g. HACK-2026-00002 -> HACK-2026-01)
+    await connection.query("UPDATE registrations SET registration_id = 'HACK-2026-01' WHERE registration_id = 'HACK-2026-00002'").catch(() => {});
+    await connection.query("UPDATE registrations SET registration_id = 'HACK-2026-01' WHERE registration_id = 'HACK-2026-00001'").catch(() => {});
+
     connection.release();
   } catch (error) {
     console.error("❌ Database connection/initialization failed:", error);

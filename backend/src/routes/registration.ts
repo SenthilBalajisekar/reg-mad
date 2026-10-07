@@ -80,6 +80,32 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
     // 2. Start Transaction
     await connection.beginTransaction();
 
+    // Check Admin Portal Permission (ON / OFF)
+    const [settingRows] = await connection.query<RowDataPacket[]>(
+      "SELECT setting_value FROM settings WHERE setting_key = 'registration_open'"
+    );
+    const isRegistrationOpen = settingRows.length > 0 ? settingRows[0].setting_value === "true" : true;
+    if (!isRegistrationOpen) {
+      res.status(403).json({ 
+        error: "Registration has closed: The portal is currently disabled by administrators." 
+      });
+      await connection.rollback();
+      return;
+    }
+
+    // Check Maximum Team Limit (Max 25 Teams)
+    const [teamCountResult] = await connection.query<RowDataPacket[]>(
+      "SELECT COUNT(*) as totalTeams FROM teams"
+    );
+    const maxTeams = (EVENT_CONFIG as any).maxTotalTeams || 25;
+    if (teamCountResult[0]?.totalTeams >= maxTeams) {
+      res.status(400).json({ 
+        error: `Registration has closed: The maximum limit of ${maxTeams} teams has been reached.` 
+      });
+      await connection.rollback();
+      return;
+    }
+
     // 3. Uniqueness Checks in Database
     // Check Team Name
     const [teamCheck] = await connection.query<RowDataPacket[]>(
@@ -159,20 +185,16 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
       }
     }
 
-    // 6. Create Registration Row & Format sequential Registration ID
-    // We insert a temporary registration key first, get the record auto-increment ID,
-    // and then update it to HACK-2026-XXXXX.
-    const tempRegId = `TEMP-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    const [regResult] = await connection.query<ResultSetHeader>(
-      "INSERT INTO registrations (registration_id, team_id, status) VALUES (?, ?, 'confirmed')",
-      [tempRegId, teamId]
+    // 6. Create Registration Row & Format sequential 2-digit Registration ID (HACK-2026-01, HACK-2026-02, ...)
+    const [countRows] = await connection.query<RowDataPacket[]>(
+      "SELECT COUNT(*) as total FROM registrations WHERE registration_id LIKE 'HACK-2026-%'"
     );
-    const registrationPrimaryKey = regResult.insertId;
-    const formattedRegId = `HACK-2026-${String(registrationPrimaryKey).padStart(5, "0")}`;
+    const nextSeqNumber = (countRows[0]?.total || 0) + 1;
+    const formattedRegId = `HACK-2026-${String(nextSeqNumber).padStart(2, "0")}`;
 
     await connection.query(
-      "UPDATE registrations SET registration_id = ? WHERE id = ?",
-      [formattedRegId, registrationPrimaryKey]
+      "INSERT INTO registrations (registration_id, team_id, status) VALUES (?, ?, 'confirmed')",
+      [formattedRegId, teamId]
     );
 
     // 7. Commit Transaction
@@ -367,16 +389,63 @@ router.get("/dashboard/stats", async (req: Request, res: Response): Promise<void
        LIMIT 5`
     );
 
+    // Query admin registration permission setting
+    const [settings] = await pool.query<RowDataPacket[]>(
+      "SELECT setting_value FROM settings WHERE setting_key = 'registration_open'"
+    );
+    const isRegistrationOpen = settings.length > 0 ? settings[0].setting_value === "true" : true;
+    const maxTeams = (EVENT_CONFIG as any).maxTotalTeams || 25;
+    const isLimitReached = (totalTeams[0]?.count || 0) >= maxTeams;
+    const effectiveOpen = isRegistrationOpen && !isLimitReached;
+
     res.status(200).json({
       totalRegistrations: totalReg[0].count,
       totalParticipants: totalPart[0].count,
       totalTeams: totalTeams[0].count,
       tracks: trackBreakdown,
-      recentRegistrations: recentRegs
+      recentRegistrations: recentRegs,
+      isRegistrationOpen,
+      maxTeams,
+      isLimitReached,
+      effectiveOpen,
+      statusLabel: effectiveOpen ? "REGISTRATION IS OPENED" : "REGISTRATION HAS CLOSED",
+      reason: isLimitReached ? "limit_reached" : (!isRegistrationOpen ? "admin_closed" : null)
     });
   } catch (error) {
     console.error("Error fetching admin stats:", error);
     res.status(500).json({ error: "Failed to fetch stats dashboard info." });
+  }
+});
+
+// Endpoint: POST /api/registrations/admin/toggle-status (Toggle registration portal permission ON/OFF)
+router.post("/admin/toggle-status", async (req: Request, res: Response): Promise<void> => {
+  const { isOpen } = req.body;
+  const valueStr = isOpen ? "true" : "false";
+  try {
+    await pool.query(
+      "INSERT INTO settings (setting_key, setting_value) VALUES ('registration_open', ?) ON DUPLICATE KEY UPDATE setting_value = ?",
+      [valueStr, valueStr]
+    );
+
+    const [teamCount] = await pool.query<RowDataPacket[]>("SELECT COUNT(*) as count FROM teams");
+    const maxTeams = (EVENT_CONFIG as any).maxTotalTeams || 25;
+    const total = teamCount[0]?.count || 0;
+    const isLimitReached = total >= maxTeams;
+    const effectiveOpen = !!isOpen && !isLimitReached;
+
+    res.status(200).json({
+      success: true,
+      isRegistrationOpen: !!isOpen,
+      effectiveOpen,
+      totalTeams: total,
+      maxTeams,
+      isLimitReached,
+      statusLabel: effectiveOpen ? "REGISTRATION IS OPENED" : "REGISTRATION HAS CLOSED",
+      message: `Registration portal successfully set to ${isOpen ? "ON" : "OFF"}.`
+    });
+  } catch (error) {
+    console.error("Error toggling registration status:", error);
+    res.status(500).json({ error: "Failed to update registration portal setting." });
   }
 });
 

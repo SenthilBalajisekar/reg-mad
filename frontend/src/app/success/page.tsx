@@ -104,47 +104,12 @@ function SuccessDetails() {
     fetchDetails();
   }, [regId]);
 
-  // Client-side PDF generation using html2canvas & jsPDF with print fallback
-  const handleDownloadPDF = async () => {
-    if (!cardRef.current || !details) return;
+  // Client-side PDF generation using native print dialog (avoids html2canvas lab color errors)
+  const handleDownloadPDF = () => {
+    if (!details) return;
     setDownloading(true);
 
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const { jsPDF } = await import("jspdf");
-
-      const element = cardRef.current;
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        onclone: (clonedDoc) => {
-          const clonedCard = clonedDoc.getElementById("receipt-card");
-          if (clonedCard) {
-            clonedCard.style.transform = "none";
-            clonedCard.style.boxShadow = "none";
-            clonedCard.style.backdropFilter = "none";
-            clonedCard.style.filter = "none";
-          }
-        }
-      });
-
-      const imgData = canvas.toDataURL("image/png");
-      const imgWidth = canvas.width / 2;
-      const imgHeight = canvas.height / 2;
-
-      const pdf = new jsPDF({
-        orientation: imgWidth > imgHeight ? "landscape" : "portrait",
-        unit: "px",
-        format: [imgWidth, imgHeight]
-      });
-
-      pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      pdf.save(`HACK-2026-TICKET-${details.registrationId}.pdf`);
-    } catch (err) {
-      console.error("PDF canvas compile error, opening browser print:", err);
       window.print();
     } finally {
       setDownloading(false);
@@ -179,7 +144,7 @@ function SuccessDetails() {
   return (
     <>
       {/* SUCCESS MESSAGE */}
-      <div className="text-center flex flex-col items-center gap-4 max-w-xl z-20 mb-8">
+      <div className="text-center flex flex-col items-center gap-4 max-w-xl z-20 mb-8 no-print">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -301,7 +266,7 @@ function SuccessDetails() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="w-full max-w-xl z-20 mt-4 p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-extrabold text-center flex items-center justify-center gap-2 shadow-sm"
+        className="w-full max-w-xl z-20 mt-4 p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-extrabold text-center flex items-center justify-center gap-2 shadow-sm no-print"
       >
         <Camera size={16} className="text-blue-600 shrink-0" />
         <span>Take the Screen Shot or Download the PDF for reference</span>
@@ -312,7 +277,7 @@ function SuccessDetails() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full max-w-xl z-20"
+        className="flex flex-col sm:flex-row items-center gap-4 mt-4 w-full max-w-xl z-20 no-print"
       >
         <button
           onClick={handleDownloadPDF}

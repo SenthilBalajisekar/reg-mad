@@ -3,12 +3,15 @@ export const EVENT_CONFIG = {
   tagline: "BUILD THE UNEXPECTED",
   poweredBy: "POWERED BY ISTE",
   collegeName: "",
-  eventDate: "September 9, 2026",
-  registrationDeadline: "September 9, 2026 23:59:59",
+  eventDate: "14th October 2026",
+  eventTiming: "9:30 AM - 4:40 PM",
+  registrationDeadline: "October 14, 2026 23:59:59",
   venue: "Ramanujan Hall : CH 5",
   prizePool: "₹50,000",
   minTeamSize: 3,
   maxTeamSize: 4,
+  maxTotalTeams: 25,
+  hackathonHours: 8,
   facultyCoordinator: {
     id: "faculty_coordinator",
     role: "FACULTY COORDINATOR",
@@ -34,16 +37,17 @@ export const EVENT_CONFIG = {
     { id: "sdg_mobile", name: "Social Impact & SDG Mobile Apps", icon: "HeartHandshake", desc: "Create accessible, offline-first mobile applications targeted at achieving UN Sustainable Development Goals." }
   ],
   timeline: [
-    { phase: "01", title: "REGISTRATION", date: "Aug 08 - Sep 09", desc: "Form your team of 3-4 members and register online through this platform." },
-    { phase: "02", title: "TEAM FORMATION", date: "Sep 01 - Sep 06", desc: "Finalize roles, brainstorm ideas, and set up your development workspace templates." },
-    { phase: "03", title: "IDEA SUBMISSION", date: "Sep 08", desc: "Submit a brief 1-page proposal and wireframe design of your planned hack project." },
-    { phase: "04", title: "HACKATHON MAIN EVENT", date: "Sep 09", desc: "5-hour sprint. Build, break, refactor, and finalize your prototype at the college venue." },
-    { phase: "05", title: "FINAL PRESENTATION", date: "Sep 09 (3:00 PM)", desc: "Pitch your product live in front of tech industry mentors and college jury panels." },
-    { phase: "06", title: "WINNERS ANNOUNCED", date: "Sep 09 (6:00 PM)", desc: "Jury assessment completes. Trophies, cash prizes, and merchandise are awarded." }
+    { phase: "01", title: "EVENT STARTS", date: "9:30 AM", desc: "Grand inauguration, team reporting, and official event kick-off." },
+    { phase: "02", title: "WELCOME CEREMONY", date: "9:30 AM - 10:00 AM", desc: "Welcome notice, honoring Chief Guest, and jury introduction." },
+    { phase: "03", title: "IDEA PITCHING", date: "10:00 AM - 12:00 PM", desc: "Teams pitch concept, problem statement, and system architecture." },
+    { phase: "04", title: "HACKATHON SPRINT", date: "10:00 AM - 3:00 PM", desc: "Intense build sprint. Develop, code, and test working prototypes." },
+    { phase: "05", title: "PROJECT JUDGING", date: "3:00 PM - 4:00 PM", desc: "Live prototype demonstration, code review, and jury evaluation." },
+    { phase: "06", title: "WINNERS & PRIZES", date: "4:00 PM - 4:30 PM", desc: "Announcement of winners and grand cash prize distribution." },
+    { phase: "07", title: "NATIONAL ANTHEM", date: "4:30 PM - 4:40 PM", desc: "Valedictory closing remarks, vote of thanks, and National Anthem." }
   ],
   faqs: [
     { q: "Who can participate?", a: "Any student currently enrolled in an undergraduate or postgraduate program at our university is welcome to join!" },
-    { q: "What is the team size?", a: "Teams must have between 2 to 3 members. Solo participations are not permitted." },
+    { q: "What is the team size?", a: "Teams must have between 3 to 4 members. Solo participations are not permitted. Total slots are limited to 25 teams." },
     { q: "Is registration free?", a: "Yes, registration is 100% free for all students. Food, snacks, and wifi will be provided by the club." },
     { q: "Do I need previous hackathon experience?", a: "Not at all! Many participants build their very first developer project here. We will have mentors to guide you." },
     { q: "What should we build?", a: "Choose one of our five tracks (Mobile, AI, Web, Security, Social) and build a functional tech prototype related to your track." },
@@ -51,7 +55,7 @@ export const EVENT_CONFIG = {
     { q: "Can we use AI tools?", a: "Yes! Utilizing AI tools like GitHub Copilot, ChatGPT, or Cursor to accelerate your coding is allowed and encouraged." },
     { q: "How will projects be judged?", a: "Judging will be based on Innovation (30%), Execution & Technical Difficulty (30%), UX/UI Design (20%), and Pitch/Presentation (20%)." },
     { q: "What should we submit?", a: "You will submit a working GitHub repository link and a short demo video of your application at the end of the hackathon." },
-    { q: "When does registration close?", a: "Registration closes strictly on September 9, 2026 at 11:59 PM IST." }
+    { q: "When does registration close?", a: "Registration closes strictly on October 14, 2026 at 11:59 PM IST (or once the 25 team limit is reached)." }
   ],
   rules: [
     { title: "Team Integrity", detail: "All team members must be registered. Sharing accounts or combining projects from non-registered students is prohibited." },
@@ -61,8 +65,8 @@ export const EVENT_CONFIG = {
     { title: "Code of Conduct", detail: "Treat all other participants, mentors, organizers, and volunteers with respect. Harassment of any form will result in immediate disqualification." }
   ],
   stats: [
-    { value: 5, label: "HACKATHON HOURS", suffix: "H" },
-    { value: 0, label: "TEAMS REGISTERED", suffix: "" }
+    { value: 8, label: "HACKATHON HOURS", suffix: "H" },
+    { value: 25, label: "MAX TEAMS LIMIT", suffix: "" }
   ] as Array<{ value: number; label: string; suffix?: string; prefix?: string }>,
   contact: {
     email: "senthilbalaji824@gamil.com",

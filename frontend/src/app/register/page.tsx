@@ -48,7 +48,7 @@ const MemberSchema = z.object({
   email: z.string().regex(emailRegex, "Provide a valid email address."),
   phone: z.string().regex(phoneRegex, "Provide a valid 10-digit phone number."),
   studentId: z.string().min(3, "Student ID must be at least 3 characters."),
-  department: z.string().min(1, "Select department."),
+  department: z.string().min(2, "Please enter department / branch."),
   year: z.coerce.number().min(1, "Select year of study.").max(4, "Select year of study.")
 });
 
@@ -77,21 +77,31 @@ export default function Register() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [totalRegisteredTeams, setTotalRegisteredTeams] = useState<number>(0);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState<boolean>(true);
 
   useEffect(() => {
     const checkRegistrationLimit = async () => {
       try {
         const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-        const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`);
-        if (res.ok) {
+        const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`).catch(() => null);
+        if (res && res.ok) {
           const data = await res.json();
           setTotalRegisteredTeams(data.totalTeams ?? data.totalRegistrations ?? 0);
+          if (data.isRegistrationOpen !== undefined) {
+            setIsRegistrationOpen(data.isRegistrationOpen);
+          }
         }
-      } catch (e) {
-        console.error("Could not fetch registration stats:", e);
+      } catch {
+        // Backend offline, fallback to 0
       }
     };
     checkRegistrationLimit();
+    const interval = setInterval(checkRegistrationLimit, 5000);
+    window.addEventListener("registrationStatusChanged", checkRegistrationLimit);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("registrationStatusChanged", checkRegistrationLimit);
+    };
   }, []);
 
   const {
@@ -129,7 +139,19 @@ export default function Register() {
   const membersCount = fields.length + 1; // leader + members
 
   // Handle Step progression validation checks
+  const maxTeams = EVENT_CONFIG.maxTotalTeams || 25;
+  const isLimitReached = totalRegisteredTeams >= maxTeams;
+  const isClosed = !isRegistrationOpen || isLimitReached;
+
   const nextStep = async () => {
+    if (isClosed) {
+      setApiError(
+        isLimitReached
+          ? `Registration has closed: Maximum limit of ${maxTeams} teams has been reached.`
+          : "Registration has closed: Portal access is currently closed by administrators."
+      );
+      return;
+    }
     let fieldsToValidate: any[] = [];
     
     if (step === 1) {
@@ -168,6 +190,14 @@ export default function Register() {
   };
 
   const onSubmit = async (data: FormData) => {
+    if (isClosed) {
+      setApiError(
+        isLimitReached
+          ? `Registration has closed: Maximum limit of ${maxTeams} teams has been reached.`
+          : "Registration has closed: Portal access is currently closed by administrators."
+      );
+      return;
+    }
     setIsSubmitting(true);
     setApiError(null);
 
@@ -269,7 +299,24 @@ export default function Register() {
             <span className="flex items-center gap-1.5">
               <span className="text-pink-600 font-extrabold">📅 DATE:</span> {EVENT_CONFIG.eventDate}
             </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-blue-600 font-extrabold">⏰ TIME:</span> {EVENT_CONFIG.eventTiming}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-emerald-600 font-extrabold">👥 SLOTS:</span> {totalRegisteredTeams} / {maxTeams} Teams
+            </span>
           </div>
+
+          {isClosed && (
+            <div className="bg-red-50 border border-red-300 p-4 rounded-xl flex items-center gap-3 text-red-700 text-xs md:text-sm font-bold shadow-sm">
+              <AlertCircle className="text-red-600 shrink-0" size={18} />
+              <span>
+                {isLimitReached
+                  ? `REGISTRATION CLOSES: The maximum limit of ${maxTeams} teams has been reached.`
+                  : "REGISTRATION CLOSES: Portal access is currently closed by administrators."}
+              </span>
+            </div>
+          )}
 
           {/* STEP PROGRESS BAR */}
           <div className="w-full flex items-center justify-between relative px-6">
@@ -422,17 +469,14 @@ export default function Register() {
                       {/* Department */}
                       <div className="flex flex-col gap-1.5">
                         <label className="text-[11px] font-mono tracking-wider text-slate-900 uppercase font-extrabold">Department / Branch</label>
-                        <select
+                        <input
+                          type="text"
+                          placeholder="e.g. Information Technology"
                           {...register("leader.department")}
-                          className={`w-full px-4 py-3 rounded-lg border bg-slate-50 text-slate-900 border-slate-300 focus:bg-white text-sm font-bold focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-200 ${
+                          className={`w-full px-4 py-3 rounded-lg border bg-slate-50 text-slate-900 border-slate-300 focus:bg-white text-sm font-bold placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all duration-200 ${
                             errors.leader?.department ? "border-red-500 focus:border-red-500" : ""
                           }`}
-                        >
-                          <option value="">Select Department</option>
-                          {DEPARTMENTS_LIST.map((dept) => (
-                            <option key={dept} value={dept}>{dept}</option>
-                          ))}
-                        </select>
+                        />
                         {errors.leader?.department && (
                           <span className="text-[10px] text-red-600 font-mono font-bold flex items-center gap-1">
                             <AlertCircle size={10} /> {errors.leader.department.message}
@@ -615,15 +659,12 @@ export default function Register() {
 
                               <div className="flex flex-col gap-1">
                                 <label className="text-[10px] font-mono text-slate-900 font-extrabold">DEPARTMENT</label>
-                                <select
+                                <input
+                                  type="text"
+                                  placeholder="e.g. Information Technology"
                                   {...register(`members.${index}.department` as const)}
-                                  className="px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:border-blue-600"
-                                >
-                                  <option value="">Select Department</option>
-                                  {DEPARTMENTS_LIST.map((dept) => (
-                                    <option key={dept} value={dept}>{dept}</option>
-                                  ))}
-                                </select>
+                                  className="px-3.5 py-2.5 rounded-lg border border-slate-300 bg-white text-slate-900 text-xs font-bold focus:outline-none focus:border-blue-600 placeholder:text-slate-400"
+                                />
                                 {errors.members?.[index]?.department && (
                                   <span className="text-[9px] text-red-600 font-mono font-bold">
                                     {errors.members[index].department.message}
@@ -767,7 +808,8 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={nextStep}
-                  className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-mono uppercase tracking-widest text-white font-extrabold flex items-center gap-2 transition-all duration-300 shadow-md"
+                  disabled={isClosed}
+                  className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-xs font-mono uppercase tracking-widest text-white font-extrabold flex items-center gap-2 transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   NEXT STEP
                   <ArrowRight size={13} />
@@ -775,8 +817,8 @@ export default function Register() {
               ) : (
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white font-extrabold hover:from-blue-700 hover:to-violet-700 flex items-center gap-2 transition-all duration-300 disabled:opacity-80 shadow-lg"
+                  disabled={isSubmitting || isClosed}
+                  className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-xs font-mono uppercase tracking-widest text-white font-extrabold hover:from-blue-700 hover:to-violet-700 flex items-center gap-2 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
                 >
                   {isSubmitting ? (
                     <>

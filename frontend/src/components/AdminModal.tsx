@@ -63,6 +63,8 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isResettingAll, setIsResettingAll] = useState(false);
   const [actionSuccess, setActionSuccess] = useState("");
+  const [isRegOpen, setIsRegOpen] = useState(true);
+  const [isTogglingReg, setIsTogglingReg] = useState(false);
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -111,10 +113,47 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
       } else {
         setError(data.error || "Failed to fetch registrations.");
       }
+
+      // Also fetch registration permission setting
+      const statsRes = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`).catch(() => null);
+      if (statsRes && statsRes.ok) {
+        const statsData = await statsRes.json();
+        if (statsData.isRegistrationOpen !== undefined) {
+          setIsRegOpen(statsData.isRegistrationOpen);
+        }
+      }
     } catch (err) {
       setError("Cannot fetch registrations. Backend server unreachable.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleRegistration = async () => {
+    setIsTogglingReg(true);
+    const nextVal = !isRegOpen;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/registrations/admin/toggle-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isOpen: nextVal })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsRegOpen(nextVal);
+        setActionSuccess(`Registration portal access set to ${nextVal ? "ON (Opened)" : "OFF (Closed)"}.`);
+        setTimeout(() => setActionSuccess(""), 4000);
+        if (onDataChange) onDataChange();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("registrationStatusChanged", { detail: { isOpen: nextVal } }));
+        }
+      } else {
+        alert(data.error || "Failed to update registration status.");
+      }
+    } catch (err) {
+      alert("Error connecting to backend server.");
+    } finally {
+      setIsTogglingReg(false);
     }
   };
 
@@ -135,6 +174,9 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
         setTimeout(() => setActionSuccess(""), 4000);
         fetchRegistrations();
         if (onDataChange) onDataChange();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("registrationStatusChanged"));
+        }
       } else {
         alert(data.error || "Failed to delete team.");
       }
@@ -333,6 +375,67 @@ export default function AdminModal({ isOpen, onClose, onDataChange }: AdminModal
                   </button>
                 </div>
               )}
+
+              {/* Registration Permission & Portal Status Control Card */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border border-slate-200 bg-slate-50 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3.5 h-3.5 rounded-full shrink-0 ${
+                    registrations.length >= 25 
+                      ? "bg-rose-500" 
+                      : isRegOpen 
+                      ? "bg-emerald-500 animate-pulse" 
+                      : "bg-rose-500"
+                  }`} />
+                  <div className="flex flex-col">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-orbitron font-extrabold text-xs sm:text-sm text-slate-900 uppercase">
+                        PORTAL STATUS:
+                      </span>
+                      <span className={`text-[11px] font-mono font-black px-2.5 py-0.5 rounded-full border ${
+                        registrations.length >= 25
+                          ? "bg-rose-50 text-rose-700 border-rose-300"
+                          : isRegOpen
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                          : "bg-rose-50 text-rose-700 border-rose-300"
+                      }`}>
+                        {registrations.length >= 25
+                          ? "REGISTRATION CLOSES (LIMIT 25 REACHED)"
+                          : isRegOpen
+                          ? "REGISTRATION OPENS"
+                          : "REGISTRATION CLOSES (OFF BY ADMIN)"}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-500 mt-0.5 font-bold">
+                      {registrations.length} / 25 Teams Registered • Auto-closes when 25 teams are reached
+                    </span>
+                  </div>
+                </div>
+
+                {/* Toggle Button */}
+                <div className="flex items-center gap-3 bg-white px-3.5 py-2 rounded-lg border border-slate-200 shadow-sm shrink-0">
+                  <span className="text-xs font-mono font-extrabold text-slate-700">
+                    ADMIN PERMISSION:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleToggleRegistration}
+                    disabled={isTogglingReg}
+                    title="Click to toggle registration portal ON/OFF"
+                    className={`relative inline-flex h-6 w-12 items-center rounded-full transition-colors focus:outline-none ${
+                      isRegOpen ? "bg-emerald-600" : "bg-slate-300"
+                    } ${isTogglingReg ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${
+                        isRegOpen ? "translate-x-7" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                  <span className={`text-xs font-mono font-black w-8 ${isRegOpen ? "text-emerald-700" : "text-slate-500"}`}>
+                    {isRegOpen ? "ON" : "OFF"}
+                  </span>
+                </div>
+              </div>
 
               {/* Controls Bar */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-200">

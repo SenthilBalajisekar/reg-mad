@@ -18,5 +18,5 @@ ON DUPLICATE KEY UPDATE role=VALUES(role);
 
 -- Create a mock registration record
 INSERT INTO registrations (registration_id, team_id, status)
-VALUES ('HACK-2026-00001', 1, 'confirmed')
+VALUES ('HACK-2026-01', 1, 'confirmed')
 ON DUPLICATE KEY UPDATE registration_id=VALUES(registration_id);

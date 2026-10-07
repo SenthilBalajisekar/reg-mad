@@ -18,6 +18,7 @@ interface CountdownProps {
 
 export default function Countdown({ teamsCount, isLoaded }: CountdownProps) {
   const [liveTeamsCount, setLiveTeamsCount] = useState<number | null>(teamsCount ?? null);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(true);
   const [timeLeft, setTimeLeft] = useState<TimeRemaining>({
     days: "00",
     hours: "00",
@@ -27,23 +28,29 @@ export default function Countdown({ teamsCount, isLoaded }: CountdownProps) {
   });
 
   useEffect(() => {
-    if (teamsCount !== undefined) {
-      setLiveTeamsCount(teamsCount);
-    } else {
-      const fetchStats = async () => {
-        try {
-          const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-          const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`);
-          if (res.ok) {
-            const data = await res.json();
-            setLiveTeamsCount(data.totalTeams ?? data.totalRegistrations ?? 0);
+    const fetchStats = async () => {
+      try {
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const res = await fetch(`${API_BASE_URL}/api/registrations/dashboard/stats`).catch(() => null);
+        if (res && res.ok) {
+          const data = await res.json();
+          setLiveTeamsCount(data.totalTeams ?? data.totalRegistrations ?? 0);
+          if (data.isRegistrationOpen !== undefined) {
+            setIsRegistrationOpen(data.isRegistrationOpen);
           }
-        } catch (e) {
-          console.error("Could not fetch live stats in Countdown:", e);
         }
-      };
-      fetchStats();
-    }
+      } catch {
+        // Backend server offline, gracefully keep default
+      }
+    };
+    fetchStats();
+    // Poll stats periodically to reflect live admin toggles
+    const interval = setInterval(fetchStats, 5000);
+    window.addEventListener("registrationStatusChanged", fetchStats);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("registrationStatusChanged", fetchStats);
+    };
   }, [teamsCount]);
 
   useEffect(() => {
@@ -76,7 +83,9 @@ export default function Countdown({ teamsCount, isLoaded }: CountdownProps) {
   }, []);
 
   const currentCount = liveTeamsCount ?? 0;
-  const isClosed = timeLeft.isExpired;
+  const maxTeams = EVENT_CONFIG.maxTotalTeams || 25;
+  const isLimitReached = currentCount >= maxTeams;
+  const isClosed = timeLeft.isExpired || isLimitReached || !isRegistrationOpen;
 
   const timeBlocks = [
     { label: "DAYS", value: timeLeft.days },
@@ -89,13 +98,15 @@ export default function Countdown({ teamsCount, isLoaded }: CountdownProps) {
     return (
       <div className="flex flex-col items-center gap-2 p-5 rounded-2xl glass-panel border border-pink-500/40 bg-slate-900/80 shadow-2xl">
         <span className="text-xs font-mono tracking-[0.3em] text-slate-300 font-bold uppercase">
-          REGISTRATION HAS
+          REGISTRATION
         </span>
         <span className="text-2xl md:text-4xl font-orbitron font-extrabold text-neon-pink text-glow-pink tracking-widest uppercase">
-          CLOSED
+          CLOSES
         </span>
         <span className="text-xs font-mono text-pink-300/90 font-bold mt-1 bg-pink-950/60 px-3.5 py-1 rounded-full border border-pink-500/40 shadow-sm">
-          Deadline Has Passed
+          {isLimitReached 
+            ? `Team Limit Reached (${maxTeams}/${maxTeams} Teams Filled)` 
+            : (!isRegistrationOpen ? "Closed by Administrator" : "Deadline Has Passed")}
         </span>
       </div>
     );
@@ -105,10 +116,10 @@ export default function Countdown({ teamsCount, isLoaded }: CountdownProps) {
     <div className="flex flex-col items-center gap-3">
       <div className="flex flex-col items-center gap-1.5 mb-1">
         <span className="text-xs md:text-sm font-mono tracking-[0.25em] text-emerald-600 font-black uppercase">
-          REGISTRATION IS OPENED
+          REGISTRATION OPENS
         </span>
         <span className="text-[11px] md:text-xs font-mono text-blue-700 font-extrabold tracking-wider bg-blue-50 px-3.5 py-1 rounded-full border border-blue-200 shadow-sm">
-          {currentCount} Teams Registered
+          {currentCount} / {maxTeams} Teams Registered
         </span>
       </div>
 

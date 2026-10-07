@@ -243,3 +243,26 @@ body {
   z-index: 2;
   pointer-events: none;
 }
+
+/* Print styles for saving Registration Ticket to PDF */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+
+  header, footer, nav, button, .no-print {
+    display: none !important;
+  }
+
+  #receipt-card {
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    margin: 20px auto !important;
+    max-width: 600px !important;
+    page-break-inside: avoid !important;
+  }
+}
