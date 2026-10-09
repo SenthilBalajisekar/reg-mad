@@ -266,3 +266,25 @@ body {
     page-break-inside: avoid !important;
   }
 }
+
+/* ─── RUNNING ADVERTISEMENT MARQUEE ─────────────────────── */
+@keyframes runningAdTicker {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-running-ad {
+  display: flex;
+  width: max-content;
+  animation: runningAdTicker 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-running-ad:hover {
+  animation-play-state: paused;
+}
+

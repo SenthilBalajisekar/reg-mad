@@ -4,10 +4,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { RunningAdTicker, WinstarModal } from "./RunningAd";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdModalOpen, setIsAdModalOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,7 +28,8 @@ export default function Navbar() {
     { name: "About", href: "#about" },
     { name: "Tracks", href: "#tracks" },
     { name: "Timeline", href: "#timeline" },
-    { name: "Members", href: "#members" }
+    { name: "Members", href: "#members" },
+    { name: "Tour Packages", href: "#advertisement" }
   ];
 
   return (
@@ -34,11 +37,16 @@ export default function Navbar() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-xl border-b border-slate-200 py-3 shadow-md"
-            : "bg-white/80 backdrop-blur-md border-b border-slate-100 py-4 shadow-sm"
+            ? "bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-md"
+            : "bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
+        {/* Continuous Running Advertisement Ticker */}
+        <RunningAdTicker onOpenModal={() => setIsAdModalOpen(true)} />
+
+        <div className={`max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between transition-all duration-300 ${
+          isScrolled ? "py-2.5" : "py-3.5"
+        }`}>
           {/* Logo */}
           <Link href="/" className="flex flex-col">
             <span className="font-orbitron text-base sm:text-lg font-bold tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-blue-700 to-violet-700 drop-shadow-sm">
@@ -91,7 +99,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 top-[64px] z-40 bg-white/98 backdrop-blur-2xl border-b border-slate-200 md:hidden flex flex-col items-center justify-center gap-8 p-6 shadow-xl"
+            className="fixed inset-0 top-[108px] z-40 bg-white/98 backdrop-blur-2xl border-b border-slate-200 md:hidden flex flex-col items-center justify-center gap-8 p-6 shadow-xl"
           >
             <div className="flex flex-col items-center gap-6">
               {navLinks.map((link) => (
@@ -116,6 +124,12 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Interactive Modal for Winstar Tours Packages */}
+      <WinstarModal
+        isOpen={isAdModalOpen}
+        onClose={() => setIsAdModalOpen(false)}
+      />
     </>
   );
 }

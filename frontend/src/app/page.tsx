@@ -34,6 +34,7 @@ import CustomCursor from "@/components/CustomCursor";
 import Countdown from "@/components/Countdown";
 import StatCounter from "@/components/StatCounter";
 import AccordionItem from "@/components/AccordionItem";
+import { WinstarAdSection, WinstarModal } from "@/components/RunningAd";
 import { EVENT_CONFIG } from "@/config/event";
 
 // 3D Magnetic Charger background animation — dynamic import (no SSR)
@@ -45,6 +46,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 
 export default function Home() {
   const [isIntroComplete, setIsIntroComplete] = useState(false);
+  const [isAdModalOpen, setIsAdModalOpen] = useState(false);
   const [memberNames, setMemberNames] = useState<Record<string, string>>({});
   const [realTimeStats, setRealTimeStats] = useState<{
     teamsCount: number;
@@ -138,7 +140,7 @@ export default function Home() {
       <Navbar />
 
       {/* ═══════════════ HERO SECTION ═══════════════ */}
-      <section id="home" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-24 pb-16 overflow-hidden z-10">
+      <section id="home" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 pt-32 sm:pt-36 pb-16 overflow-hidden z-10">
 
         <div className="max-w-4xl flex flex-col items-center text-center gap-5 md:gap-6 mt-6 md:mt-12 mx-auto">
           
@@ -597,6 +599,15 @@ export default function Home() {
 
 
 
+
+      {/* ═══════════════ WINSTAR PACKAGES ADVERTISEMENT SECTION ═══════════════ */}
+      <WinstarAdSection onOpenModal={() => setIsAdModalOpen(true)} />
+
+      {/* Interactive Modal for Winstar Tours Packages */}
+      <WinstarModal
+        isOpen={isAdModalOpen}
+        onClose={() => setIsAdModalOpen(false)}
+      />
 
       <Footer />
     </div>

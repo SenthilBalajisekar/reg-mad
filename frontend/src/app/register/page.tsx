@@ -19,7 +19,8 @@ import {
   Plus,
   Trash2,
   Loader2,
-  Camera
+  Camera,
+  MessageCircle
 } from "lucide-react";
 
 import { EVENT_CONFIG } from "@/config/event";
@@ -770,6 +771,32 @@ export default function Register() {
                     <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-mono font-extrabold text-center flex items-center justify-center gap-2 shadow-sm">
                       <Camera size={15} className="text-blue-600 shrink-0" />
                       <span>Take the Screen Shot or Download the PDF for reference</span>
+                    </div>
+
+                    {/* WhatsApp Group Notification */}
+                    <div className="p-4 rounded-xl bg-emerald-50 border-2 border-emerald-400 text-emerald-950 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow">
+                          <MessageCircle size={18} />
+                        </div>
+                        <div className="flex flex-col text-left">
+                          <span className="font-orbitron font-extrabold text-xs text-emerald-900 uppercase tracking-wide">
+                            Join Official WhatsApp Group
+                          </span>
+                          <span className="text-[11px] font-sans text-emerald-800 font-semibold mt-0.5">
+                            After confirming your spot, the entire team is requested to join the official WhatsApp group for live hackathon announcements.
+                          </span>
+                        </div>
+                      </div>
+                      <a
+                        href="https://chat.whatsapp.com/F1sPFIp3qXCFOFa4OXVqIt?s=sw&p=a&mlu=4&ilr=4"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 w-full sm:w-auto px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-1.5 shadow transition-all hover:scale-105"
+                      >
+                        <MessageCircle size={14} />
+                        <span>JOIN GROUP</span>
+                      </a>
                     </div>
 
                     {/* Agree checkbox */}
