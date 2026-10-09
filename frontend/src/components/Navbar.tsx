@@ -29,7 +29,7 @@ export default function Navbar() {
     { name: "Tracks", href: "#tracks" },
     { name: "Timeline", href: "#timeline" },
     { name: "Members", href: "#members" },
-    { name: "Tour Packages", href: "#advertisement" }
+    { name: "Sponsors Details", href: "#advertisement" }
   ];
 
   return (
